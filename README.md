@@ -22,6 +22,11 @@ Agents Chat Collection 仅作为一个学习资源，收集了各种开源 agent
 1. 直接访问 [在线演示页面](https://fishisnow.github.io/agents-chat-collection/) 查看所有对话示例
 2. 克隆本仓库后在本地浏览器中打开HTML文件查看对话过程
 
+## 如何收集
+
+简单几行代码，快速收集 agent 与 gpt 的对话过程
+👉 [ai_chat_html_exporter](https://github.com/fishisnow/ai_chat_html_exporter)
+
 ## 贡献指南
 
 欢迎贡献更多的agent对话示例！如果你有优质的agent与AI交互的对话过程，可以通过Pull Request提交。

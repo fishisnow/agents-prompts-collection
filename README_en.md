@@ -22,6 +22,10 @@ You can:
 1. Directly visit the [online demo page](https://fishisnow.github.io/agents-chat-collection/) to view all conversation examples.
 2. Clone this repository and open the HTML files in a local browser to view the conversation processes.
 
+## How to Collect
+With just a few lines of code, you can quickly collect the conversation history between agents and GPT.
+👉 [ai_chat_html_exporter](https://github.com/fishisnow/ai_chat_html_exporter)
+
 ## Contribution Guidelines
 
 Contributions of more agent conversation examples are welcome! If you have high-quality interaction processes between agents and AI, feel free to submit them via a Pull Request.
