@@ -14,7 +14,22 @@ Agents Chat Collection serves solely as a learning resource, collecting various 
 
 ### browser_use
 
-[browser_use - Add Todo Conversation](https://fishisnow.github.io/agents-chat-collection/browser_use/conversation_add_todo.html) - Demonstrates how AI interacts with the web through a browser interface.
+[browser_use - Add Todo Conversation](https://fishisnow.github.io/agents-chat-collection/browser_use/conversation_add_todo.html) - Demonstrates how the AI agent interacts with the browser interface to add a to-do item.
+
+### OpenManus
+
+[OpenManus - Add Todo Conversation](https://fishisnow.github.io/agents-chat-collection/OpenManus/conversation_add_todo.html) - Shows how the AI agent automatically completes the process of adding a to-do item, showcasing intelligent task handling.
+
+### MidScene
+
+[MidScene - Intelligent Task Planning](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_domtree.html) - Intelligent task analysis and execution planning based on screenshots and the page DOM tree.
+
+[MidScene - Intelligent Task Planning](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_vision.html) - Intelligent task analysis and execution planning based on visual positioning of interface elements.
+
+[MidScene - DOM Intelligent Recognition](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_inspect_by_domtree.html) - Accurately identifies the IDs of page elements based on screenshots and the page DOM tree.
+
+[MidScene - Visual Intelligent Positioning](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_inspect_by_vision.html) - Uses visual positioning of interface elements to return the coordinates of elements (requires a large model supporting visual positioning).
+
 
 ## How to Use
 

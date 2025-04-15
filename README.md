@@ -16,6 +16,20 @@ Agents Chat Collection 仅作为一个学习资源，收集了各种开源 agent
 
 [browser_use - 添加待办事项对话](https://fishisnow.github.io/agents-chat-collection/browser_use/conversation_add_todo.html) - 展示了AI如何通过浏览器接口与网络交互的过程。
 
+### OpenManus
+
+[OpenManus - 添加待办事项对话](https://fishisnow.github.io/agents-chat-collection/OpenManus/conversation_add_todo.html) - 展示了AI如何自动完成待办事项的添加，体验智能化的任务处理流程。
+
+### MidScene
+
+[MidScene - 智能任务规划](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_domtree.html) - 根据截图和页面 Dom 树的智能任务分析与执行规划。
+
+[MidScene - 智能任务规划](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_vision.html) - 基于界面元素视觉定位的智能任务分析与执行规划。
+
+[MidScene - DOM智能识别](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_inspect_by_domtree.html) - 根据截图和页面 Dom 树，精确识别页面元素的 ID。
+
+[MidScene - 视觉智能定位](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_inspect_by_vision.html) - 基于界面元素视觉定位，返回元素的坐标（需使用支持视觉定位的大模型）
+
 ## 如何使用
 
 你可以：

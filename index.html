@@ -130,7 +130,7 @@
 
 <div class="header">
     <h1>AI Agent Chat Explore Lab</h1>
-    <p>探索AI智能代理的交互能力 - 展示开源 AI Agent 的实际应用过程的对话演示</p>
+    <p>探索 AI 智能代理的交互能力 - 展示开源 AI Agent 的实际应用过程的对话演示</p>
 </div>
 
 <section class="agent-section">
@@ -156,9 +156,13 @@
 <section class="agent-section">
     <h2><a href="https://github.com/web-infra-dev/midscene" target="_blank">MidScene</a></h2>
     <div class="example-grid">
-        <div class="example-card" onclick="location.href='midscene/conversation_plan.html'">
+        <div class="example-card" onclick="location.href='midscene/conversation_plan_by_domtree.html'">
             <h3>智能任务规划</h3>
-            <p>基于场景理解的智能任务分析与执行规划</p>
+            <p>根据截图和页面 Dom 树的智能任务分析与执行规划</p>
+        </div>
+        <div class="example-card" onclick="location.href='midscene/conversation_plan_by_vision.html'">
+            <h3>智能任务规划</h3>
+            <p>基于界面元素视觉定位的智能任务分析与执行规划</p>
         </div>
         <div class="example-card" onclick="location.href='midscene/conversation_inspect_by_domtree.html'">
             <h3>DOM智能识别</h3>
@@ -166,7 +170,7 @@
         </div>
         <div class="example-card" onclick="location.href='midscene/conversation_inspect_by_vision.html'">
             <h3>视觉智能定位</h3>
-            <p>基于计算机视觉的界面元素的智能定位，返回元素的坐标（需使用支持视觉定位的大模型）</p>
+            <p>基于界面元素视觉定位，返回元素的坐标（需使用支持视觉定位的大模型）</p>
         </div>
     </div>
 </section>
