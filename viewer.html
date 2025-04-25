@@ -18,6 +18,7 @@
             --sidebar-bg: #ffffff; /* 白色侧边栏 */
             --menu-btn-size: 32px; /* 菜单按钮尺寸 */
             --header-height: 60px; /* 头部高度 */
+            --home-link-bg: #1a1a1a;
         }
 
         /* 暗色模式 - 将来可以添加 */
@@ -32,6 +33,7 @@
                 --text-secondary: #a0a0a0;
                 --border-color: #333333;
                 --sidebar-bg: #111111;
+                --home-link-bg: #1a1a1a;
             }
         }
 
@@ -91,18 +93,33 @@
         }
         
         .home-link {
-            display: block;
+            display: flex;
+            align-items: center;
             padding: 15px 20px;
             color: var(--primary-color);
-            font-weight: 500;
+            font-weight: 600;
             text-decoration: none;
             border-bottom: 1px solid var(--border-color);
             transition: background-color 0.2s;
             font-size: 14px;
+            background-color: #f5f5f5;
+            margin-bottom: 10px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .home-link {
+                background-color: var(--home-link-bg);
+            }
+        }
+
+        .home-link:before {
+            content: "←";
+            margin-right: 8px;
+            font-size: 16px;
         }
 
         .home-link:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: var(--border-color);
         }
 
         .sidebar-menu {
@@ -112,7 +129,7 @@
         }
 
         .sidebar-menu-category {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .sidebar-menu-category > span {
@@ -123,14 +140,30 @@
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 5px;
         }
 
         .sidebar-menu-item {
-            padding: 10px 20px;
+            padding: 8px 20px 8px 30px;
             cursor: pointer;
             transition: background 0.2s;
             font-size: 14px;
             color: var(--text-color);
+            position: relative;
+        }
+
+        .sidebar-menu-item:before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--text-secondary);
+            transform: translateY(-50%);
+            opacity: 0.5;
         }
 
         .sidebar-menu-item:hover {
@@ -141,6 +174,12 @@
             background-color: rgba(0, 0, 0, 0.1);
             color: var(--primary-color);
             border-left: 2px solid var(--primary-color);
+            font-weight: 500;
+        }
+
+        .sidebar-menu-item.active:before {
+            background-color: var(--primary-color);
+            opacity: 1;
         }
 
         .main-content {
@@ -169,22 +208,22 @@
             justify-content: center;
             width: var(--menu-btn-size);
             height: var(--menu-btn-size);
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: transparent;
             transition: all 0.2s ease;
             z-index: 100;
+            border: none;
+            box-shadow: none;
         }
 
         .github-link:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0.7;
         }
 
         .github-link svg {
             width: 18px;
             height: 18px;
-            fill: white;
+            fill: var(--primary-color);
             flex-shrink: 0;
         }
 
@@ -195,14 +234,14 @@
             z-index: 1001;
             width: var(--menu-btn-size);
             height: var(--menu-btn-size);
-            background-color: var(--primary-color);
-            border-radius: 50%;
+            background-color: transparent;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.2s ease;
+            border: none;
+            box-shadow: none;
         }
 
         .menu-toggle.with-sidebar {
@@ -211,15 +250,20 @@
             right: 0;
             left: auto;
             background-color: transparent;
+            border: none;
             box-shadow: none;
         }
 
         .menu-toggle:hover {
-            background-color: var(--primary-dark);
+            background-color: transparent;
+            box-shadow: none;
+            opacity: 0.7;
         }
         
         .menu-toggle.with-sidebar:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: transparent;
+            box-shadow: none;
+            opacity: 0.7;
         }
             
         .menu-toggle span,
@@ -228,7 +272,7 @@
             display: block;
             width: 16px;
             height: 2px;
-            background-color: white;
+            background-color: var(--primary-color);
             position: relative;
             transition: all 0.2s ease;
         }
@@ -236,7 +280,7 @@
         .menu-toggle.with-sidebar span,
         .menu-toggle.with-sidebar span:before,
         .menu-toggle.with-sidebar span:after {
-            background-color: var(--text-color);
+            background-color: var(--primary-color);
         }
             
         .menu-toggle span:before,
@@ -308,7 +352,7 @@
 </a>
 
 <!-- 菜单按钮 -->
-<div class="menu-toggle" id="menuToggle" title="展开/收起菜单">
+<div class="menu-toggle" id="menuToggle">
     <span></span>
 </div>
 
@@ -317,7 +361,7 @@
     <div class="sidebar-header">
         <h3>Agent对话导航</h3>
         <!-- 侧边栏内的菜单按钮 -->
-        <div class="menu-toggle with-sidebar" id="menuToggleInSidebar" title="收起菜单">
+        <div class="menu-toggle with-sidebar" id="menuToggleInSidebar">
             <span></span>
         </div>
     </div>

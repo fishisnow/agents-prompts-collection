@@ -12,6 +12,10 @@ Agents Chat Collection 仅作为一个学习资源，收集了各种开源 agent
 
 ## 收集的Agent
 
+### openai-agents
+
+[openai-agents - MCP Filesystem 示例](https://fishisnow.github.io/agents-chat-collection/openai_agents/conversation_filesystem_mcp.html) - 展示AI代理如何基于文件系统的 mcp server 完成用户任务的过程。
+
 ### browser_use
 
 [browser_use - 添加待办事项对话](https://fishisnow.github.io/agents-chat-collection/browser_use/conversation_add_todo.html) - 展示了AI如何通过浏览器接口与网络交互的过程。
@@ -22,13 +26,17 @@ Agents Chat Collection 仅作为一个学习资源，收集了各种开源 agent
 
 ### MidScene
 
-[MidScene - 智能任务规划](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_domtree.html) - 根据截图和页面 Dom 树的智能任务分析与执行规划。
+[MidScene - 智能任务规划(Dom树)](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_domtree.html) - 根据截图和页面 Dom 树的智能任务分析与执行规划。
 
-[MidScene - 智能任务规划](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_vision.html) - 基于界面元素视觉定位的智能任务分析与执行规划。
+[MidScene - 智能任务规划(视觉)](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_plan_by_vision.html) - 基于界面元素视觉定位的智能任务分析与执行规划。
 
 [MidScene - DOM智能识别](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_inspect_by_domtree.html) - 根据截图和页面 Dom 树，精确识别页面元素的 ID。
 
 [MidScene - 视觉智能定位](https://fishisnow.github.io/agents-chat-collection/midscene/conversation_inspect_by_vision.html) - 基于界面元素视觉定位，返回元素的坐标（需使用支持视觉定位的大模型）
+
+### openui
+
+[openui - 创建个人主页示例](https://fishisnow.github.io/agents-chat-collection/openui/conversation_create_homepage.html) - 展示AI代理如何创建个人主页的网站页面。
 
 ## 如何使用
 

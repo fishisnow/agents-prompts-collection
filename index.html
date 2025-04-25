@@ -144,22 +144,22 @@
             justify-content: center;
             width: var(--menu-btn-size);
             height: var(--menu-btn-size);
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: transparent;
             transition: all 0.2s ease;
             z-index: 100;
+            border: none;
+            box-shadow: none;
         }
 
         .github-link:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0.7;
         }
 
         .github-link svg {
             width: 18px;
             height: 18px;
-            fill: white;
+            fill: var(--primary-color);
             flex-shrink: 0;
         }
 
