@@ -6,20 +6,52 @@
     <title>AI Agent Lab - 智能代理交互演示平台</title>
     <style>
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --bg-color: #f8fafc;
-            --text-color: #334155;
+            --primary-color: #000000; /* 黑色主调 */
+            --primary-light: #333333; /* 浅黑色 */
+            --primary-dark: #111111; /* 深黑色 */
+            --accent-color: #0070f3; /* 蓝色强调色，用于链接和按钮 */
+            --bg-color: #fafafa; /* 浅灰色背景 */
+            --text-color: #1a1a1a; /* 深色文本 */
+            --text-secondary: #666666; /* 次要文本色 */
+            --border-color: #eaeaea; /* 边框色 */
+            --card-bg: #ffffff; /* 卡片背景色 */
+            --menu-btn-size: 32px; /* 菜单按钮尺寸 */
+        }
+
+        /* 暗色模式 - 将来可以添加 */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-color: #ffffff;
+                --primary-light: #cccccc;
+                --primary-dark: #eeeeee;
+                --accent-color: #0070f3;
+                --bg-color: #000000;
+                --text-color: #f5f5f5;
+                --text-secondary: #a0a0a0;
+                --border-color: #333333;
+                --card-bg: #111111;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
+            margin: 0;
+            padding: 0;
             color: var(--text-color);
             background: var(--bg-color);
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
         }
 
         .header {
@@ -31,21 +63,23 @@
             font-size: 2.5rem;
             color: var(--primary-color);
             margin-bottom: 1rem;
+            font-weight: 800;
         }
 
         .header p {
             font-size: 1.1rem;
-            color: var(--text-color);
+            color: var(--text-secondary);
             max-width: 600px;
             margin: 0 auto;
         }
 
         .agent-section {
-            background: white;
-            border-radius: 16px;
+            background: var(--card-bg);
+            border-radius: 8px;
             padding: 30px;
             margin-bottom: 40px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
         }
 
         .agent-section h2 {
@@ -55,12 +89,13 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            font-weight: 600;
         }
 
         .agent-section h2 a {
             color: inherit;
             text-decoration: none;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.2s;
         }
 
         .agent-section h2 a:hover {
@@ -74,50 +109,103 @@
         }
 
         .example-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             padding: 20px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .example-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            border-color: var(--primary-color);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-color);
         }
 
         .example-card h3 {
             color: var(--primary-color);
             margin: 0 0 10px 0;
+            font-weight: 600;
+        }
+
+        .example-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin: 0;
         }
 
         .github-link {
             position: fixed;
-            top: 20px;
+            top: 14px;
             right: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 48px;
-            height: 48px;
+            width: var(--menu-btn-size);
+            height: var(--menu-btn-size);
             border-radius: 50%;
             background-color: var(--primary-color);
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            z-index: 100;
         }
 
         .github-link:hover {
-            background-color: var(--secondary-color);
-            transform: scale(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .github-link svg {
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             fill: white;
             flex-shrink: 0;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            ::-webkit-scrollbar-thumb {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        /* 极简主义的其他元素样式 */
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 40px 16px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -128,51 +216,89 @@
     </svg>
 </a>
 
-<div class="header">
-    <h1>AI Agent Chat Explore Lab</h1>
-    <p>探索 AI 智能代理的交互能力 - 展示开源 AI Agent 的实际应用过程的对话演示</p>
-</div>
-
-<section class="agent-section">
-    <h2><a href="https://github.com/browser-use/browser-use" target="_blank">Browser Use</a></h2>
-    <div class="example-grid">
-        <div class="example-card" onclick="location.href='browser_use/conversation_add_todo.html'">
-            <h3>智能待办事项添加</h3>
-            <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
-        </div>
+<!-- 主内容区域 -->
+<main class="main-content">
+    <div class="header">
+        <h1>AI Agent Chat Explore Lab</h1>
+        <p>探索 AI 智能代理的交互能力 - 展示开源 AI Agent 的实际应用过程的对话演示</p>
     </div>
-</section>
 
-<section class="agent-section">
-    <h2><a href="https://github.com/mannaandpoem/OpenManus" target="_blank">OpenManus</a></h2>
-    <div class="example-grid">
-        <div class="example-card" onclick="location.href='OpenManus/conversation_add_todo.html'">
-            <h3>智能待办事项添加</h3>
-            <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
+    <section class="agent-section">
+        <h2><a href="https://github.com/openai/openai-agents-python" target="_blank">openai-agents</a></h2>
+        <div class="example-grid">
+            <div class="example-card" data-path="openai_agents/conversation_filesystem_mcp.html">
+                <h3>MCP Filesystem 示例</h3>
+                <p>展示AI代理如何基于文件系统的 mcp server 完成用户任务的过程。</p>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="agent-section">
-    <h2><a href="https://github.com/web-infra-dev/midscene" target="_blank">MidScene</a></h2>
-    <div class="example-grid">
-        <div class="example-card" onclick="location.href='midscene/conversation_plan_by_domtree.html'">
-            <h3>智能任务规划</h3>
-            <p>根据截图和页面 Dom 树的智能任务分析与执行规划</p>
+    <section class="agent-section">
+        <h2><a href="https://github.com/browser-use/browser-use" target="_blank">Browser Use</a></h2>
+        <div class="example-grid">
+            <div class="example-card" data-path="browser_use/conversation_add_todo.html">
+                <h3>智能待办事项添加</h3>
+                <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
+            </div>
         </div>
-        <div class="example-card" onclick="location.href='midscene/conversation_plan_by_vision.html'">
-            <h3>智能任务规划</h3>
-            <p>基于界面元素视觉定位的智能任务分析与执行规划</p>
+    </section>
+
+    <section class="agent-section">
+        <h2><a href="https://github.com/mannaandpoem/OpenManus" target="_blank">OpenManus</a></h2>
+        <div class="example-grid">
+            <div class="example-card" data-path="OpenManus/conversation_add_todo.html">
+                <h3>智能待办事项添加</h3>
+                <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
+            </div>
         </div>
-        <div class="example-card" onclick="location.href='midscene/conversation_inspect_by_domtree.html'">
-            <h3>DOM智能识别</h3>
-            <p>根据截图和页面 Dom 树，精确识别页面元素的 ID</p>
+    </section>
+
+    <section class="agent-section">
+        <h2><a href="https://github.com/web-infra-dev/midscene" target="_blank">MidScene</a></h2>
+        <div class="example-grid">
+            <div class="example-card" data-path="midscene/conversation_plan_by_domtree.html">
+                <h3>智能任务规划</h3>
+                <p>根据截图和页面 Dom 树的智能任务分析与执行规划</p>
+            </div>
+            <div class="example-card" data-path="midscene/conversation_plan_by_vision.html">
+                <h3>智能任务规划</h3>
+                <p>基于界面元素视觉定位的智能任务分析与执行规划</p>
+            </div>
+            <div class="example-card" data-path="midscene/conversation_inspect_by_domtree.html">
+                <h3>DOM智能识别</h3>
+                <p>根据截图和页面 Dom 树，精确识别页面元素的 ID</p>
+            </div>
+            <div class="example-card" data-path="midscene/conversation_inspect_by_vision.html">
+                <h3>视觉智能定位</h3>
+                <p>基于界面元素视觉定位，返回元素的坐标（需使用支持视觉定位的大模型）</p>
+            </div>
         </div>
-        <div class="example-card" onclick="location.href='midscene/conversation_inspect_by_vision.html'">
-            <h3>视觉智能定位</h3>
-            <p>基于界面元素视觉定位，返回元素的坐标（需使用支持视觉定位的大模型）</p>
+    </section>
+
+    <section class="agent-section">
+        <h2><a href="https://github.com/wandb/openui" target="_blank">openui</a></h2>
+        <div class="example-grid">
+            <div class="example-card" data-path="openui/conversation_create_homepage.html">
+                <h3>创建一个个人主页示例</h3>
+                <p>展示AI代理如何创建个人主页的网站页面</p>
+            </div>
         </div>
-    </div>
-</section>
+    </section>
+</main>
+
+<script>
+    // 为所有卡片添加点击事件
+    document.querySelectorAll('.example-card').forEach(card => {
+        const path = card.getAttribute('data-path');
+        card.addEventListener('click', function() {
+            window.location.href = 'viewer.html?page=' + encodeURIComponent(path);
+        });
+    });
+    
+    // 检测系统暗色模式变化
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        // 如果需要根据系统暗色模式动态调整一些元素，可以在这里添加代码
+    });
+</script>
 </body>
 </html>

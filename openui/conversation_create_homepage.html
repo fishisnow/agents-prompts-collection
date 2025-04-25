@@ -1,0 +1,608 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>AI对话历史</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f7f7f8;
+                    line-height: 1.6;
+                    color: #374151;
+                }
+                .message {
+                    margin: 20px 0;
+                    padding: 16px 20px;
+                    border-radius: 16px;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    font-size: 15px;
+                    line-height: 1.5;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                    transition: all 0.2s ease;
+                    position: relative;
+                    overflow: visible;
+                }
+                
+                .message:hover {
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                }
+                
+                .message > div {
+                    margin: 12px 0;
+                }
+                
+                .message p {
+                    margin: 8px 0;
+                }
+                
+                .message > *:first-child {
+                    margin-top: 0;
+                }
+                
+                .message > *:last-child {
+                    margin-bottom: 0;
+                }
+                
+                #conversation {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    width: 100%;
+                }
+                
+                .user {
+                    background-color: #e9f2ff;
+                    margin-right: 15%;
+                    border: 1px solid #d1e3ff;
+                    position: relative;
+                    align-self: flex-start;
+                    max-width: 85%;
+                    padding-right: 40px; /* 为工具图标预留空间 */
+                }
+                
+                .user:before {
+                    content: "用户";
+                    position: absolute;
+                    top: -10px;
+                    left: 12px;
+                    background: #4b7bec;
+                    color: white;
+                    font-size: 12px;
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                }
+                
+                .assistant {
+                    background-color: #ffffff;
+                    margin-left: 15%;
+                    border: 1px solid #e5e7eb;
+                    position: relative;
+                    align-self: flex-end;
+                    max-width: 85%;
+                }
+                
+                .assistant:before {
+                    content: "AI";
+                    position: absolute;
+                    top: -10px;
+                    left: 12px;
+                    background: #45aaf2;
+                    color: white;
+                    font-size: 12px;
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                }
+
+                .system {
+                    background-color: #f0f9ff;
+                    margin: 20px 0;
+                    border: 1px solid #bae6fd;
+                    position: relative;
+                    font-style: italic;
+                }
+                
+                .system:before {
+                    content: "系统";
+                    position: absolute;
+                    top: -10px;
+                    left: 12px;
+                    background: #0ea5e9;
+                    color: white;
+                    font-size: 12px;
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                }
+
+                pre {
+                    background-color: #f8f9fa;
+                    padding: 12px;
+                    border-radius: 8px;
+                    overflow-x: auto;
+                    margin: 12px 0;
+                    font-family: 'Menlo', 'Consolas', monospace;
+                    font-size: 14px;
+                    line-height: 1.4;
+                    border: 1px solid #e5e7eb;
+                }
+                code {
+                    font-family: 'Menlo', 'Consolas', monospace;
+                    background-color: #f3f4f6;
+                    padding: 2px 4px;
+                    border-radius: 4px;
+                    font-size: 14px;
+                }
+                .tool-call-header {
+                    margin: 12px 0 0 0;
+                    display: flex;
+                    align-items: center;
+                    padding: 8px 12px;
+                    background-color: #f1f5f9;
+                    border-radius: 6px 6px 0 0;
+                    font-weight: 500;
+                    color: #334155;
+                }
+                
+                .tool-call-icon {
+                    width: 16px;
+                    height: 16px;
+                    margin-right: 8px;
+                    color: #475569;
+                }
+                
+                .tool-call-title {
+                    font-size: 0.9em;
+                    font-weight: 600;
+                }
+
+                .tool-call-container {
+                    margin: 12px 0;
+                }
+                
+                .tool-call-header + pre {
+                    margin-top: 0;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
+                }
+
+                h1 {
+                    color: #111827;
+                    font-size: 1.5em;
+                    font-weight: 600;
+                    margin-bottom: 24px;
+                    text-align: center;
+                }
+                /* 图片样式 */
+                img {
+                    max-width: 100%;
+                    border-radius: 8px;
+                    margin: 8px 0;
+                    display: block;
+                }
+                /* 图片容器，用于限制最大高度 */
+                .image-container {
+                    max-height: 400px;
+                    overflow: auto;
+                    margin: 12px 0;
+                }
+
+                /* 添加 tool 消息的样式 */
+                .tool {
+                    background-color: #f3f4f6;
+                    margin: 20px 0;
+                    border: 1px solid #d1d5db;
+                    position: relative;
+                }
+                
+                .tool:before {
+                    content: "Tool";
+                    position: absolute;
+                    top: -10px;
+                    left: 12px;
+                    background: #6366f1;
+                    color: white;
+                    font-size: 12px;
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                }
+                
+                /* 用户消息中的工具图标 */
+                .tools-icon {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    width: 22px;
+                    height: 22px;
+                    cursor: pointer;
+                    color: #4b7bec;
+                    opacity: 0.7;
+                    transition: all 0.2s ease;
+                    background-color: rgba(255, 255, 255, 0.8);
+                    padding: 3px;
+                    border-radius: 4px;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10;
+                }
+                
+                .tools-icon:hover {
+                    opacity: 1;
+                    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+                    transform: translateY(-1px);
+                }
+                
+                /* 工具信息弹出层 */
+                .tools-popup {
+                    display: none;
+                    position: fixed;
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 8px;
+                    padding: 10px;
+                    width: 400px;
+                    max-width: 90vw;
+                    max-height: 60vh;
+                    overflow: hidden;
+                    z-index: 100;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+                }
+                
+                .tools-popup-content {
+                    height: calc(60vh - 60px);
+                    overflow: hidden;
+                }
+                
+                .tools-popup pre {
+                    margin: 0;
+                    white-space: pre-wrap;
+                    padding: 8px;
+                    border-radius: 6px;
+                    background-color: #f8f9fa;
+                    border: 1px solid #f0f0f0;
+                    font-size: 13px;
+                    overflow: auto;
+                    height: 100%;
+                }
+                
+                .tools-popup code {
+                    background: transparent;
+                    padding: 0;
+                    font-size: 13px;
+                }
+                
+                .tools-popup-visible {
+                    display: block;
+                    animation: fadeIn 0.2s ease-out;
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                /* 关闭按钮 */
+                .tools-popup-close {
+                    position: absolute;
+                    top: 8px;
+                    right: 10px;
+                    cursor: pointer;
+                    font-size: 18px;
+                    color: #9ca3af;
+                    line-height: 1;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                }
+                
+                .tools-popup-close:hover {
+                    color: #4b5563;
+                    background-color: #f3f4f6;
+                }
+
+                /* 工具信息标题 */
+                .tools-popup-title {
+                    font-size: 14px;
+                    font-weight: 600;
+                    color: #4b7bec;
+                    margin: 0 0 8px 0;
+                    padding: 0 20px 8px 0;
+                    border-bottom: 1px solid #e5e7eb;
+                    line-height: 1.5;
+                }
+                
+                /* 响应式调整 */
+                @media (max-width: 600px) {
+                    .tools-popup {
+                        width: calc(100vw - 40px);
+                        max-height: 70vh;
+                    }
+                    
+                    .tools-popup pre {
+                        max-height: calc(70vh - 50px);
+                    }
+                }
+
+                /* 消息内容文本 */
+                .content-text {
+                    display: inline;
+                }
+            </style>
+            <!-- 引入代码高亮库 -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+            <script>hljs.highlightAll();</script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // 全局弹出层，只创建一次
+                const popupContainer = document.createElement('div');
+                popupContainer.className = 'tools-popup';
+                popupContainer.innerHTML = `
+                    <span class="tools-popup-close" title="关闭">&times;</span>
+                    <div class="tools-popup-title">可用工具列表</div>
+                    <div class="tools-popup-content">
+                        <pre><code class="language-json"></code></pre>
+                    </div>
+                `;
+                document.body.appendChild(popupContainer);
+                
+                // 关闭按钮事件
+                popupContainer.querySelector('.tools-popup-close').addEventListener('click', function() {
+                    popupContainer.classList.remove('tools-popup-visible');
+                });
+                
+                // 初始化所有工具图标的点击事件
+                function initToolsIcons() {
+                    document.querySelectorAll('.tools-icon').forEach(icon => {
+                        if (!icon.dataset.initialized) {
+                            icon.dataset.initialized = 'true';
+                            icon.addEventListener('click', handleToolIconClick);
+                        }
+                    });
+                }
+                
+                // 工具图标点击处理函数
+                function handleToolIconClick(e) {
+                    const icon = e.currentTarget;
+                    const message = icon.closest('.message');
+                    const toolsData = message.querySelector('.tools-data');
+                    
+                    if (toolsData) {
+                        // 获取工具数据
+                        const toolsJson = toolsData.getAttribute('data-tools');
+                        
+                        // 填充弹出层内容
+                        const codeElement = popupContainer.querySelector('code');
+                        codeElement.textContent = toolsJson;
+                        
+                        // 应用语法高亮
+                        if (window.hljs) {
+                            hljs.highlightElement(codeElement);
+                        }
+                        
+                        // 定位弹出层
+                        const iconRect = icon.getBoundingClientRect();
+                        popupContainer.style.top = `${iconRect.bottom + 5}px`;
+                        popupContainer.style.right = `${window.innerWidth - iconRect.right}px`;
+                        
+                        // 显示弹出层
+                        popupContainer.classList.add('tools-popup-visible');
+                        
+                        // 调整位置
+                        adjustPopupPosition(popupContainer);
+                        
+                        // 阻止事件冒泡
+                        e.stopPropagation();
+                    }
+                }
+                
+                // 调整弹出框位置，确保在视窗内
+                function adjustPopupPosition(popup) {
+                    const rect = popup.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    const viewportWidth = window.innerWidth;
+                    
+                    // 检查是否超出底部边界
+                    if (rect.bottom > viewportHeight) {
+                        // 如果弹出框太大，则将其放到顶部附近
+                        if (rect.height > viewportHeight * 0.6) {
+                            popup.style.top = '20px';
+                        } else {
+                            const overflowBottom = rect.bottom - viewportHeight;
+                            popup.style.top = `${parseInt(popup.style.top || '0') - overflowBottom - 10}px`;
+                        }
+                    }
+                    
+                    // 检查是否超出右侧边界
+                    if (rect.right > viewportWidth) {
+                        popup.style.right = '10px';
+                        popup.style.left = 'auto';
+                    }
+                    
+                    // 检查是否超出左侧边界
+                    if (rect.left < 0) {
+                        popup.style.left = '10px';
+                        popup.style.right = 'auto';
+                    }
+                }
+                
+                // 点击文档其他区域关闭弹出框
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.tools-popup') && !e.target.closest('.tools-icon')) {
+                        popupContainer.classList.remove('tools-popup-visible');
+                    }
+                });
+                
+                // 窗口大小改变时重新调整弹出框的位置
+                window.addEventListener('resize', function() {
+                    if (popupContainer.classList.contains('tools-popup-visible')) {
+                        adjustPopupPosition(popupContainer);
+                    }
+                });
+                
+                // 初始化现有图标
+                initToolsIcons();
+                
+                // 使用MutationObserver监听DOM变化，处理动态添加的工具图标
+                const observer = new MutationObserver(function(mutations) {
+                    let hasNewIcons = false;
+                    
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            const icons = mutation.target.querySelectorAll('.tools-icon:not([data-initialized])');
+                            if (icons.length > 0) {
+                                hasNewIcons = true;
+                            }
+                        }
+                    });
+                    
+                    if (hasNewIcons) {
+                        initToolsIcons();
+                    }
+                });
+                
+                // 开始观察DOM变化
+                observer.observe(document.getElementById('conversation'), { 
+                    childList: true, 
+                    subtree: true 
+                });
+                
+                // 初始化时检查所有用户消息内容高度
+                setTimeout(() => {
+                    document.querySelectorAll('.message.user').forEach(message => {
+                        // 移除空格、换行符等空白字符，检查消息是否为空
+                        const text = message.textContent.trim();
+                        if (!text || text.length === 0) {
+                            message.style.padding = '5px 20px';
+                        }
+                    });
+                    
+                    // 确保所有图标都已初始化
+                    initToolsIcons();
+                }, 100);
+            });
+            </script>
+        </head>
+        <body>
+            <h1>AI对话历史</h1>
+            <div id="conversation">
+        <div class="message system"><span class="content-text">🎉 Greetings, TailwindCSS Virtuoso! 🌟
+
+You&#x27;ve mastered the art of frontend design and TailwindCSS! Your mission is to transform detailed descriptions or compelling images into stunning HTML using the versatility of TailwindCSS. Ensure your creations are seamless in both dark and light modes! Your designs should be responsive and adaptable across all devices – be it desktop, tablet, or mobile.
+
+*Design Guidelines:*
+- Utilize placehold.co for placeholder images and descriptive alt text.
+- For interactive elements, leverage modern ES6 JavaScript and native browser APIs for enhanced functionality.
+- Inspired by shadcn, we provide the following colors which handle both light and dark mode:
+
+<pre><code class="language-css">  --background
+  --foreground
+  --primary
+	--border
+  --input
+  --ring
+  --primary-foreground
+  --secondary
+  --secondary-foreground
+  --accent
+  --accent-foreground
+  --destructive
+  --destructive-foreground
+  --muted
+  --muted-foreground
+  --card
+  --card-foreground
+  --popover
+  --popover-foreground</code></pre>
+
+Prefer using these colors when appropriate, for example:
+
+<pre><code class="language-html">&lt;button class=&quot;bg-secondary text-secondary-foreground hover:bg-secondary/80&quot;&gt;Click me&lt;/button&gt;
+&lt;span class=&quot;text-muted-foreground&quot;&gt;This is muted text&lt;/span&gt;</code></pre>
+
+*Implementation Rules:*
+- Only implement elements within the <code>&lt;body&gt;</code> tag, don&#x27;t bother with <code>&lt;html&gt;</code> or <code>&lt;head&gt;</code> tags.
+- Avoid using SVGs directly. Instead, use the <code>&lt;img&gt;</code> tag with a descriptive title as the alt attribute and add .svg to the placehold.co url, for example:
+
+<pre><code class="language-html">&lt;img aria-hidden=&quot;true&quot; alt=&quot;magic-wand&quot; src=&quot;/icons/24x24.svg?text=🪄&quot; /&gt;</code></pre>
+
+
+Always start your response with frontmatter wrapped in ---.  Set name: with a 2 to 5 word description of the component. Set emoji: with an emoji for the component, i.e.:
+---
+name: Fancy Button
+emoji: 🎉
+---
+
+&lt;button class=&quot;bg-blue-500 text-white p-2 rounded-lg&quot;&gt;Click me&lt;/button&gt;
+
+</span></div><div class="message user"><span class="content-text">帮我生成一个个人的网站，这个网站主要是为我的客户展示博客文章和产品列表</span></div><div class="message assistant"><span class="content-text">---
+name: Personal Website Layout
+emoji: 🏠
+---
+
+<pre><code class="language-html">&lt;body class=&quot;bg-background text-foreground&quot;&gt;
+  &lt;!-- Header --&gt;
+  &lt;header class=&quot;bg-primary text-primary-foreground p-4 flex justify-between items-center&quot;&gt;
+    &lt;h1 class=&quot;text-xl font-bold&quot;&gt;My Personal Website&lt;/h1&gt;
+    &lt;nav&gt;
+      &lt;ul class=&quot;flex space-x-4&quot;&gt;
+        &lt;li&gt;&lt;a href=&quot;#blog&quot; class=&quot;hover:text-primary-foreground/80&quot;&gt;Blog&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;#products&quot; class=&quot;hover:text-primary-foreground/80&quot;&gt;Products&lt;/a&gt;&lt;/li&gt;
+        &lt;li&gt;&lt;a href=&quot;#contact&quot; class=&quot;hover:text-primary-foreground/80&quot;&gt;Contact&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/nav&gt;
+  &lt;/header&gt;
+
+  &lt;!-- Main Content --&gt;
+  &lt;main class=&quot;p-4&quot;&gt;
+    &lt;!-- Blog Section --&gt;
+    &lt;section id=&quot;blog&quot; class=&quot;my-8&quot;&gt;
+      &lt;h2 class=&quot;text-2xl font-semibold mb-4&quot;&gt;Blog Articles&lt;/h2&gt;
+      &lt;div class=&quot;grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4&quot;&gt;
+        &lt;!-- Blog Post --&gt;
+        &lt;article class=&quot;bg-card text-card-foreground p-4 rounded-lg shadow-md&quot;&gt;
+          &lt;img src=&quot;https://placehold.co/600x400&quot; alt=&quot;Blog post image&quot; class=&quot;w-full h-40 object-cover rounded-md mb-4&quot;&gt;
+          &lt;h3 class=&quot;text-xl font-bold mb-2&quot;&gt;Blog Post Title&lt;/h3&gt;
+          &lt;p class=&quot;text-muted-foreground&quot;&gt;A brief description of the blog post content goes here. It&#x27;s engaging and informative.&lt;/p&gt;
+          &lt;button class=&quot;mt-4 bg-secondary text-secondary-foreground hover:bg-secondary/80 p-2 rounded-lg&quot;&gt;Read More&lt;/button&gt;
+        &lt;/article&gt;
+        &lt;!-- Repeat for more blog posts --&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Products Section --&gt;
+    &lt;section id=&quot;products&quot; class=&quot;my-8&quot;&gt;
+      &lt;h2 class=&quot;text-2xl font-semibold mb-4&quot;&gt;Product List&lt;/h2&gt;
+      &lt;div class=&quot;grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4&quot;&gt;
+        &lt;!-- Product Item --&gt;
+        &lt;div class=&quot;bg-card text-card-foreground p-4 rounded-lg shadow-md&quot;&gt;
+          &lt;img src=&quot;https://placehold.co/600x400&quot; alt=&quot;Product image&quot; class=&quot;w-full h-40 object-cover rounded-md mb-4&quot;&gt;
+          &lt;h3 class=&quot;text-xl font-bold mb-2&quot;&gt;Product Name&lt;/h3&gt;
+          &lt;p class=&quot;text-muted-foreground&quot;&gt;A brief description of the product features and benefits.&lt;/p&gt;
+          &lt;button class=&quot;mt-4 bg-accent text-accent-foreground hover:bg-accent/80 p-2 rounded-lg&quot;&gt;View Product&lt;/button&gt;
+        &lt;/div&gt;
+        &lt;!-- Repeat for more products --&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+  &lt;!-- Footer --&gt;
+  &lt;footer class=&quot;bg-primary text-primary-foreground p-4 text-center&quot;&gt;
+    &lt;p&gt;&amp;copy; 2023 My Personal Website. All rights reserved.&lt;/p&gt;
+  &lt;/footer&gt;
+&lt;/body&gt;</code></pre>
+
+This layout provides a clean and modern design for showcasing your blog articles and product listings. It includes responsive grid layouts for both sections, ensuring a seamless experience across all devices.</span></div>
+            </div>
+            <script>hljs.highlightAll();</script>
+        </body>
+        </html>
+        
