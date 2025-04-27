@@ -602,7 +602,7 @@
             <div class="conversation-divider" style="text-align: center; margin: 20px 0; color: #6b7280; font-size: 14px;">
                 <span style="display: inline-block; position: relative; padding: 0 10px; background: #f7f7f8;">
                     <span style="border-top: 1px solid #d1d5db; position: absolute; top: 50%; left: 0; width: 100%; z-index: -1;"></span>
-                    ————————————Step 1————————————
+                    ———Step 1———
                 </span>
             </div>
             <div class="message system"><span class="content-text">You are a senior financial analyst. You will be provided with the original query and a set of raw search summaries. Your task is to synthesize these into a long‑form markdown report (at least several paragraphs) including a short executive summary and follow‑up questions. If needed, you can call the available analysis tools (e.g. fundamentals_analysis, risk_analysis) to get short specialist write‑ups to incorporate.</span></div><div class="message user"><span class="content-text">Original query: Write up an analysis of Apple Inc.&#x27;s most recent quarter.
@@ -666,7 +666,7 @@ Summarized search results: []</span>
             <div class="conversation-divider" style="text-align: center; margin: 20px 0; color: #6b7280; font-size: 14px;">
                 <span style="display: inline-block; position: relative; padding: 0 10px; background: #f7f7f8;">
                     <span style="border-top: 1px solid #d1d5db; position: absolute; top: 50%; left: 0; width: 100%; z-index: -1;"></span>
-                    ————————————Step 2————————————
+                    ———financials agent as tool———
                 </span>
             </div>
             <div class="message system"><span class="content-text">You are a financial analyst focused on company fundamentals such as revenue, profit, margins and growth trajectory. Given a collection of web (and optional file) search results about a company, write a concise analysis of its recent financial performance. Pull out key metrics or quotes. Keep it under 2 paragraphs.</span></div><div class="message user"><span class="content-text">Apple Inc. most recent quarter financial performance</span></div><div class="message assistant"><span class="content-text">{&quot;summary&quot;:&quot;Apple Inc.&#x27;s recent financial performance reveals a slightly mixed picture. The company reported revenue of $81.8 billion for its latest quarter, a 1% decrease compared to the same period last year. Despite this small decline, Apple managed to post a slight increase in net income, which rose from $19.4 billion to $19.9 billion. Apple&#x27;s gross margin stood at 41.1%, indicating strong profitability amidst revenue challenges.\n\nThe performance of product categories was varied; iPhone sales, a major revenue driver, saw a 2.4% drop to $39.7 billion, while Services revenue grew 8% year-over-year to $21.2 billion, showcasing robust growth in non-hardware segments. CEO Tim Cook highlighted strong service adoption rates as a positive element, but acknowledged the impact of weaker consumer demand on hardware sales. This dual performance underscores Apple&#x27;s strategy of leveraging its ecosystem to counterbalance fluctuations in its traditional product lines.&quot;}</span></div>
@@ -677,13 +677,19 @@ Summarized search results: []</span>
             <div class="conversation-divider" style="text-align: center; margin: 20px 0; color: #6b7280; font-size: 14px;">
                 <span style="display: inline-block; position: relative; padding: 0 10px; background: #f7f7f8;">
                     <span style="border-top: 1px solid #d1d5db; position: absolute; top: 50%; left: 0; width: 100%; z-index: -1;"></span>
-                    ————————————Step 3————————————
+                    ———risk agent as tool———
                 </span>
             </div>
             <div class="message system"><span class="content-text">You are a risk analyst looking for potential red flags in a company&#x27;s outlook. Given background research, produce a short analysis of risks such as competitive threats, regulatory issues, supply chain problems, or slowing growth. Keep it under 2 paragraphs.</span></div><div class="message user"><span class="content-text">Apple Inc. recent performance risks</span></div><div class="message assistant"><span class="content-text">{&quot;summary&quot;:&quot;Apple Inc. faces several notable risks that could impact its future performance. One prominent risk is competitive threats from technology giants like Samsung and Google, which are intensifying their efforts in hardware innovation and ecosystem integration. Apple&#x27;s reliance on iPhone sales as a significant portion of its revenue exposes it to market saturation risks, as competitors offer high-quality alternatives at competitive prices. Moreover, emerging markets present competitive challenges where local brands are gaining traction. Additionally, Apple&#x27;s heavy dependence on China&#x27;s supply chain is susceptible to disruptions due to geopolitical tensions, trade conflicts, or COVID-19 resurgences affecting manufacturing capacity and logistics.\n\nRegulatory issues pose another significant threat, particularly with increasing scrutiny over antitrust practices and privacy concerns. This is evident from the various legal battles Apple faces in multiple jurisdictions concerning its App Store policies and data handling practices. New regulations could lead to increased compliance costs or force changes in business practices, impacting profitability. Furthermore, global economic uncertainties and inflationary pressures could lead to slowing growth, as consumers may rethink their spending habits, affecting Apple&#x27;s premium pricing strategy and overall revenue growth projections. These factors combined require careful strategic planning to mitigate potential adverse effects.&quot;}</span></div>
             </div>
         </body>
         </html>
+        <div class="conversation-divider" style="text-align: center; margin: 20px 0; color: #6b7280; font-size: 14px;">
+                <span style="display: inline-block; position: relative; padding: 0 10px; background: #f7f7f8;">
+                    <span style="border-top: 1px solid #d1d5db; position: absolute; top: 50%; left: 0; width: 100%; z-index: -1;"></span>
+                    ———Step 1 continue———
+                </span>
+        </div>
         <div class="message tool"><span class="content-text">Apple Inc.&#x27;s recent financial performance reveals a slightly mixed picture. The company reported revenue of $81.8 billion for its latest quarter, a 1% decrease compared to the same period last year. Despite this small decline, Apple managed to post a slight increase in net income, which rose from $19.4 billion to $19.9 billion. Apple&#x27;s gross margin stood at 41.1%, indicating strong profitability amidst revenue challenges.
 
 The performance of product categories was varied; iPhone sales, a major revenue driver, saw a 2.4% drop to $39.7 billion, while Services revenue grew 8% year-over-year to $21.2 billion, showcasing robust growth in non-hardware segments. CEO Tim Cook highlighted strong service adoption rates as a positive element, but acknowledged the impact of weaker consumer demand on hardware sales. This dual performance underscores Apple&#x27;s strategy of leveraging its ecosystem to counterbalance fluctuations in its traditional product lines.</span></div><div class="message tool"><span class="content-text">Apple Inc. faces several notable risks that could impact its future performance. One prominent risk is competitive threats from technology giants like Samsung and Google, which are intensifying their efforts in hardware innovation and ecosystem integration. Apple&#x27;s reliance on iPhone sales as a significant portion of its revenue exposes it to market saturation risks, as competitors offer high-quality alternatives at competitive prices. Moreover, emerging markets present competitive challenges where local brands are gaining traction. Additionally, Apple&#x27;s heavy dependence on China&#x27;s supply chain is susceptible to disruptions due to geopolitical tensions, trade conflicts, or COVID-19 resurgences affecting manufacturing capacity and logistics.
@@ -696,7 +702,7 @@ Regulatory issues pose another significant threat, particularly with increasing 
             <div class="conversation-divider" style="text-align: center; margin: 20px 0; color: #6b7280; font-size: 14px;">
                 <span style="display: inline-block; position: relative; padding: 0 10px; background: #f7f7f8;">
                     <span style="border-top: 1px solid #d1d5db; position: absolute; top: 50%; left: 0; width: 100%; z-index: -1;"></span>
-                    ————————————Step 4————————————
+                    ———Step 2———
                 </span>
             </div>
             <div class="message system"><span class="content-text">You are a meticulous auditor. You have been handed a financial analysis report. Your job is to verify the report is internally consistent, clearly sourced, and makes no unsupported claims. Point out any issues or uncertainties.</span></div><div class="message user"><span class="content-text">### Executive Summary
