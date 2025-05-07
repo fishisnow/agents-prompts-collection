@@ -1,0 +1,1543 @@
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>AI对话历史</title>
+            <style>
+                :root {
+                    --color-text: #1a1a1a;
+                    --color-background: #ffffff;
+                    --color-accent: #0070f3;
+                    --color-border: #f0f0f0;
+                    --color-card: #ffffff;
+                    --color-user-bg: #f9fafb;
+                    --color-assistant-bg: #ffffff;
+                    --color-system-bg: #f9f9f9;
+                    --color-code-bg: #f7f7f7;
+                    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
+                    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    --radius-sm: 6px;
+                    --radius-md: 10px;
+                    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                }
+
+                body {
+                    font-family: var(--font-sans);
+                    max-width: 768px;
+                    margin: 0 auto;
+                    padding: 40px 16px;
+                    background-color: var(--color-background);
+                    line-height: 1.6;
+                    color: var(--color-text);
+                    font-size: 15px;
+                }
+                
+                .message {
+                    margin: 20px 0;
+                    padding: 16px 18px;
+                    border-radius: var(--radius-md);
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    font-size: 15px;
+                    line-height: 1.6;
+                    box-shadow: var(--shadow-sm);
+                    transition: all 0.2s ease;
+                    position: relative;
+                    overflow: visible;
+                    border: 1px solid var(--color-border);
+                }
+                
+                .message:hover {
+                    box-shadow: var(--shadow-md);
+                }
+                
+                .message > div {
+                    margin: 12px 0;
+                }
+                
+                .message p {
+                    margin: 8px 0;
+                }
+                
+                .message > *:first-child {
+                    margin-top: 0;
+                }
+                
+                .message > *:last-child {
+                    margin-bottom: 0;
+                }
+                
+                #conversation {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    width: 100%;
+                }
+                
+                .user {
+                    background-color: var(--color-user-bg);
+                    margin-right: 10%;
+                    align-self: flex-start;
+                    max-width: 90%;
+                    padding-right: 40px; /* 为工具图标预留空间 */
+                }
+                
+                .user:before {
+                    content: "用户";
+                    position: absolute;
+                    top: -8px;
+                    left: 12px;
+                    background: #f2f2f2;
+                    color: #666;
+                    font-size: 12px;
+                    padding: 1px 6px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    box-shadow: var(--shadow-sm);
+                    border: 1px solid var(--color-border);
+                }
+                
+                .assistant {
+                    background-color: var(--color-assistant-bg);
+                    margin-left: 10%;
+                    position: relative;
+                    align-self: flex-end;
+                    max-width: 90%;
+                }
+                
+                .assistant:before {
+                    content: "AI";
+                    position: absolute;
+                    top: -8px;
+                    left: 12px;
+                    background: #e9e9e9;
+                    color: #666;
+                    font-size: 12px;
+                    padding: 1px 6px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    box-shadow: var(--shadow-sm);
+                    border: 1px solid var(--color-border);
+                }
+
+                .system {
+                    background-color: var(--color-system-bg);
+                    margin: 16px 0;
+                    position: relative;
+                    font-style: italic;
+                }
+                
+                .system:before {
+                    content: "系统";
+                    position: absolute;
+                    top: -8px;
+                    left: 12px;
+                    background: #ececec;
+                    color: #666;
+                    font-size: 12px;
+                    padding: 1px 6px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    box-shadow: var(--shadow-sm);
+                    border: 1px solid var(--color-border);
+                }
+
+                pre {
+                    background-color: var(--color-code-bg);
+                    padding: 14px 16px;
+                    border-radius: var(--radius-sm);
+                    overflow-x: auto;
+                    margin: 14px 0;
+                    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+                    font-size: 13.5px;
+                    line-height: 1.5;
+                    border: 1px solid var(--color-border);
+                }
+                
+                code {
+                    font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+                    background-color: var(--color-code-bg);
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    font-size: 13.5px;
+                    color: inherit;
+                }
+                
+                .tool-call-header {
+                    margin: 14px 0 0 0;
+                    display: flex;
+                    align-items: center;
+                    padding: 10px 14px;
+                    background-color: var(--color-code-bg);
+                    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+                    font-weight: 500;
+                    color: var(--color-text);
+                    border: 1px solid var(--color-border);
+                    border-bottom: none;
+                }
+                
+                .tool-call-icon {
+                    width: 14px;
+                    height: 14px;
+                    margin-right: 8px;
+                    color: var(--color-text);
+                    opacity: 0.75;
+                }
+                
+                .tool-call-title {
+                    font-size: 0.85em;
+                    font-weight: 500;
+                    color: #666;
+                }
+
+                .tool-call-container {
+                    margin: 14px 0;
+                    border-radius: var(--radius-sm);
+                    overflow: hidden;
+                    box-shadow: var(--shadow-sm);
+                }
+                
+                .tool-call-header + pre {
+                    margin-top: 0;
+                    border-top: none;
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 0;
+                    box-shadow: none;
+                }
+
+                h1 {
+                    font-size: 1.75rem;
+                    font-weight: 700;
+                    margin-bottom: 32px;
+                    text-align: center;
+                    letter-spacing: -0.015em;
+                    color: var(--color-text);
+                }
+                
+                /* 图片样式 */
+                img {
+                    max-width: 100%;
+                    border-radius: var(--radius-sm);
+                    margin: 12px 0;
+                    display: block;
+                    border: 1px solid var(--color-border);
+                }
+                
+                /* 图片容器，用于限制最大高度 */
+                .image-container {
+                    max-height: 400px;
+                    overflow: auto;
+                    margin: 14px 0;
+                    border-radius: var(--radius-sm);
+                }
+
+                /* 添加 tool 消息的样式 */
+                .tool {
+                    background-color: var(--color-code-bg);
+                    margin: 16px 0;
+                    position: relative;
+                }
+                
+                .tool:before {
+                    content: "Tool";
+                    position: absolute;
+                    top: -8px;
+                    left: 12px;
+                    background: #ececec;
+                    color: #666;
+                    font-size: 12px;
+                    padding: 1px 6px;
+                    border-radius: 4px;
+                    font-weight: 500;
+                    box-shadow: var(--shadow-sm);
+                    border: 1px solid var(--color-border);
+                }
+                
+                /* 用户消息中的工具图标 */
+                .tools-icon {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    width: 18px;
+                    height: 18px;
+                    cursor: pointer;
+                    color: #999;
+                    opacity: 0.7;
+                    transition: all 0.2s ease;
+                    background-color: var(--color-background);
+                    padding: 3px;
+                    border-radius: 4px;
+                    box-shadow: var(--shadow-sm);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10;
+                    border: 1px solid var(--color-border);
+                }
+                
+                .tools-icon:hover {
+                    opacity: 1;
+                    box-shadow: var(--shadow-md);
+                    transform: translateY(-1px);
+                }
+                
+                /* 工具信息弹出层 */
+                .tools-popup {
+                    display: none;
+                    position: fixed;
+                    background: var(--color-card);
+                    border: 1px solid var(--color-border);
+                    border-radius: var(--radius-md);
+                    padding: 14px;
+                    width: 400px;
+                    max-width: 90vw;
+                    max-height: 60vh;
+                    overflow: hidden;
+                    z-index: 100;
+                    box-shadow: var(--shadow-md);
+                }
+                
+                .tools-popup-content {
+                    height: calc(60vh - 60px);
+                    overflow: hidden;
+                }
+                
+                .tools-popup pre {
+                    margin: 0;
+                    white-space: pre-wrap;
+                    padding: 12px;
+                    border-radius: var(--radius-sm);
+                    background-color: var(--color-code-bg);
+                    font-size: 13px;
+                    overflow: auto;
+                    height: 100%;
+                    border: none;
+                }
+                
+                .tools-popup code {
+                    background: transparent;
+                    padding: 0;
+                    font-size: 13px;
+                }
+                
+                .tools-popup-visible {
+                    display: block;
+                    animation: fadeIn 0.2s ease-out;
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(-5px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                /* 关闭按钮 */
+                .tools-popup-close {
+                    position: absolute;
+                    top: 8px;
+                    right: 10px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    color: #999;
+                    line-height: 1;
+                    width: 20px;
+                    height: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    background: var(--color-code-bg);
+                    transition: all 0.2s ease;
+                }
+                
+                .tools-popup-close:hover {
+                    background-color: var(--color-border);
+                }
+
+                /* 工具信息标题 */
+                .tools-popup-title {
+                    font-size: 13px;
+                    font-weight: 500;
+                    color: #666;
+                    margin: 0 0 12px 0;
+                    padding: 0 20px 8px 0;
+                    border-bottom: 1px solid var(--color-border);
+                    line-height: 1.5;
+                }
+                
+                /* 响应式调整 */
+                @media (max-width: 600px) {
+                    .tools-popup {
+                        width: calc(100vw - 32px);
+                        max-height: 70vh;
+                    }
+                    
+                    .tools-popup pre {
+                        max-height: calc(70vh - 50px);
+                    }
+                    
+                    body {
+                        padding: 20px 12px;
+                    }
+                    
+                    .message {
+                        margin: 16px 0;
+                        padding: 12px 14px;
+                    }
+                }
+
+                /* 消息内容文本 */
+                .content-text {
+                    display: inline;
+                }
+                
+                /* Grok风格的代码高亮 */
+                .hljs {
+                    background-color: var(--color-code-bg);
+                    color: var(--color-text);
+                    border-radius: var(--radius-sm);
+                }
+                
+                /* JSON键名 */
+                .hljs-attr, 
+                .hljs-attribute {
+                    color: #5c6bc0;
+                    font-weight: 500;
+                }
+                
+                /* JSON字符串值 */
+                .hljs-string {
+                    color: #43a047;
+                }
+                
+                /* JSON数值 */
+                .hljs-number {
+                    color: #e57373;
+                }
+                
+                /* JSON布尔值和null */
+                .hljs-literal {
+                    color: #f57c00;
+                }
+                
+                /* JSON符号（花括号、方括号、逗号、冒号等） */
+                .hljs-punctuation {
+                    color: #9e9e9e;
+                }
+            </style>
+            <!-- Inter 字体 -->
+            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+            <!-- 代码高亮库 -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/json.min.js"></script>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // 全局弹出层，只创建一次
+                const popupContainer = document.createElement('div');
+                popupContainer.className = 'tools-popup';
+                popupContainer.innerHTML = `
+                    <span class="tools-popup-close" title="关闭">&times;</span>
+                    <div class="tools-popup-title">可用工具列表</div>
+                    <div class="tools-popup-content">
+                        <pre><code class="language-json"></code></pre>
+                    </div>
+                `;
+                document.body.appendChild(popupContainer);
+                
+                // 关闭按钮事件
+                popupContainer.querySelector('.tools-popup-close').addEventListener('click', function() {
+                    popupContainer.classList.remove('tools-popup-visible');
+                });
+                
+                // 初始化所有工具图标的点击事件
+                function initToolsIcons() {
+                    document.querySelectorAll('.tools-icon').forEach(icon => {
+                        if (!icon.dataset.initialized) {
+                            icon.dataset.initialized = 'true';
+                            icon.addEventListener('click', handleToolIconClick);
+                        }
+                    });
+                }
+                
+                // 工具图标点击处理函数
+                function handleToolIconClick(e) {
+                    const icon = e.currentTarget;
+                    const message = icon.closest('.message');
+                    const toolsData = message.querySelector('.tools-data');
+                    
+                    if (toolsData) {
+                        // 获取工具数据
+                        const toolsJson = toolsData.getAttribute('data-tools');
+                        
+                        // 填充弹出层内容
+                        const codeElement = popupContainer.querySelector('code');
+                        codeElement.textContent = toolsJson;
+                        
+                        // 应用语法高亮
+                        if (window.hljs) {
+                            hljs.highlightElement(codeElement);
+                        }
+                        
+                        // 定位弹出层
+                        const iconRect = icon.getBoundingClientRect();
+                        popupContainer.style.top = `${iconRect.bottom + 5}px`;
+                        popupContainer.style.right = `${window.innerWidth - iconRect.right}px`;
+                        
+                        // 显示弹出层
+                        popupContainer.classList.add('tools-popup-visible');
+                        
+                        // 调整位置
+                        adjustPopupPosition(popupContainer);
+                        
+                        // 阻止事件冒泡
+                        e.stopPropagation();
+                    }
+                }
+                
+                // 调整弹出框位置，确保在视窗内
+                function adjustPopupPosition(popup) {
+                    const rect = popup.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    const viewportWidth = window.innerWidth;
+                    
+                    // 检查是否超出底部边界
+                    if (rect.bottom > viewportHeight) {
+                        // 如果弹出框太大，则将其放到顶部附近
+                        if (rect.height > viewportHeight * 0.6) {
+                            popup.style.top = '20px';
+                        } else {
+                            const overflowBottom = rect.bottom - viewportHeight;
+                            popup.style.top = `${parseInt(popup.style.top || '0') - overflowBottom - 10}px`;
+                        }
+                    }
+                    
+                    // 检查是否超出右侧边界
+                    if (rect.right > viewportWidth) {
+                        popup.style.right = '10px';
+                        popup.style.left = 'auto';
+                    }
+                    
+                    // 检查是否超出左侧边界
+                    if (rect.left < 0) {
+                        popup.style.left = '10px';
+                        popup.style.right = 'auto';
+                    }
+                }
+                
+                // 点击文档其他区域关闭弹出框
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.tools-popup') && !e.target.closest('.tools-icon')) {
+                        popupContainer.classList.remove('tools-popup-visible');
+                    }
+                });
+                
+                // 窗口大小改变时重新调整弹出框的位置
+                window.addEventListener('resize', function() {
+                    if (popupContainer.classList.contains('tools-popup-visible')) {
+                        adjustPopupPosition(popupContainer);
+                    }
+                });
+                
+                // 初始化现有图标
+                initToolsIcons();
+                
+                // 使用MutationObserver监听DOM变化，处理动态添加的工具图标
+                const observer = new MutationObserver(function(mutations) {
+                    let hasNewIcons = false;
+                    
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'childList') {
+                            const icons = mutation.target.querySelectorAll('.tools-icon:not([data-initialized])');
+                            if (icons.length > 0) {
+                                hasNewIcons = true;
+                            }
+                        }
+                    });
+                    
+                    if (hasNewIcons) {
+                        initToolsIcons();
+                    }
+                });
+                
+                // 开始观察DOM变化
+                observer.observe(document.getElementById('conversation'), { 
+                    childList: true, 
+                    subtree: true 
+                });
+                
+                // 初始化时检查所有用户消息内容高度
+                setTimeout(() => {
+                    document.querySelectorAll('.message.user').forEach(message => {
+                        // 移除空格、换行符等空白字符，检查消息是否为空
+                        const text = message.textContent.trim();
+                        if (!text || text.length === 0) {
+                            message.style.padding = '5px 20px';
+                        }
+                    });
+                    
+                    // 确保所有图标都已初始化
+                    initToolsIcons();
+                }, 100);
+                
+                // 初始化代码高亮
+                if (window.hljs) {
+                    hljs.configure({
+                        languages: ['json', 'javascript', 'python', 'bash', 'html', 'css'],
+                        ignoreUnescapedHTML: true
+                    });
+                    hljs.highlightAll();
+                }
+            });
+            </script>
+        </head>
+        <body>
+            <h1>AI对话历史</h1>
+            <div id="conversation">
+        <div class="message system"><span class="content-text">
+You are tasked with explaining to a principal software engineer how to draw the best and most accurate system design diagram / architecture of a given project. This explanation should be tailored to the specific project&#x27;s purpose and structure. To accomplish this, you will be provided with two key pieces of information:
+
+1. The complete and entire file tree of the project including all directory and file names, which will be enclosed in &lt;file_tree&gt; tags in the users message.
+
+2. The README file of the project, which will be enclosed in &lt;readme&gt; tags in the users message.
+
+Analyze these components carefully, as they will provide crucial information about the project&#x27;s structure and purpose. Follow these steps to create an explanation for the principal software engineer:
+
+1. Identify the project type and purpose:
+   - Examine the file structure and README to determine if the project is a full-stack application, an open-source tool, a compiler, or another type of software imaginable.
+   - Look for key indicators in the README, such as project description, features, or use cases.
+
+2. Analyze the file structure:
+   - Pay attention to top-level directories and their names (e.g., &quot;frontend&quot;, &quot;backend&quot;, &quot;src&quot;, &quot;lib&quot;, &quot;tests&quot;).
+   - Identify patterns in the directory structure that might indicate architectural choices (e.g., MVC pattern, microservices).
+   - Note any configuration files, build scripts, or deployment-related files.
+
+3. Examine the README for additional insights:
+   - Look for sections describing the architecture, dependencies, or technical stack.
+   - Check for any diagrams or explanations of the system&#x27;s components.
+
+4. Based on your analysis, explain how to create a system design diagram that accurately represents the project&#x27;s architecture. Include the following points:
+
+   a. Identify the main components of the system (e.g., frontend, backend, database, building, external services).
+   b. Determine the relationships and interactions between these components.
+   c. Highlight any important architectural patterns or design principles used in the project.
+   d. Include relevant technologies, frameworks, or libraries that play a significant role in the system&#x27;s architecture.
+
+5. Provide guidelines for tailoring the diagram to the specific project type:
+   - For a full-stack application, emphasize the separation between frontend and backend, database interactions, and any API layers.
+   - For an open-source tool, focus on the core functionality, extensibility points, and how it integrates with other systems.
+   - For a compiler or language-related project, highlight the different stages of compilation or interpretation, and any intermediate representations.
+
+6. Instruct the principal software engineer to include the following elements in the diagram:
+   - Clear labels for each component
+   - Directional arrows to show data flow or dependencies
+   - Color coding or shapes to distinguish between different types of components
+
+7. NOTE: Emphasize the importance of being very detailed and capturing the essential architectural elements. Don&#x27;t overthink it too much, simply separating the project into as many components as possible is best.
+
+Present your explanation and instructions within &lt;explanation&gt; tags, ensuring that you tailor your advice to the specific project based on the provided file tree and README content.
+</span></div><div class="message user"><span class="content-text">&lt;file_tree&gt;
+.cursor
+.cursor/rules
+.cursor/rules/summary.mdc
+.env.example
+.eslintrc.cjs
+.github
+.github/FUNDING.yml
+.github/workflows
+.github/workflows/deploy.yml
+.gitignore
+LICENSE
+README.md
+backend
+backend/Dockerfile
+backend/app
+backend/app/__init__.py
+backend/app/core
+backend/app/core/limiter.py
+backend/app/main.py
+backend/app/prompts.py
+backend/app/routers
+backend/app/routers/generate.py
+backend/app/routers/modify.py
+backend/app/services
+backend/app/services/claude_service.py
+backend/app/services/github_service.py
+backend/app/services/o1_mini_openai_service.py
+backend/app/services/o3_mini_openai_service.py
+backend/app/services/o3_mini_openrouter_service.py
+backend/app/services/o4_mini_openai_service.py
+backend/app/utils
+backend/app/utils/format_message.py
+backend/deploy.sh
+backend/entrypoint.sh
+backend/nginx
+backend/nginx/api.conf
+backend/nginx/setup_nginx.sh
+backend/requirements.txt
+components.json
+docker-compose.yml
+docs
+drizzle.config.ts
+next.config.js
+package.json
+pnpm-lock.yaml
+postcss.config.js
+prettier.config.js
+public
+src
+src/app
+src/app/[username]
+src/app/[username]/[repo]
+src/app/[username]/[repo]/page.tsx
+src/app/_actions
+src/app/_actions/cache.ts
+src/app/_actions/github.ts
+src/app/_actions/repo.ts
+src/app/layout.tsx
+src/app/page.tsx
+src/app/providers.tsx
+src/components
+src/components/action-button.tsx
+src/components/api-key-button.tsx
+src/components/api-key-dialog.tsx
+src/components/copy-button.tsx
+src/components/customization-dropdown.tsx
+src/components/export-dropdown.tsx
+src/components/footer.tsx
+src/components/header.tsx
+src/components/hero.tsx
+src/components/loading-animation.tsx
+src/components/loading.tsx
+src/components/main-card.tsx
+src/components/mermaid-diagram.tsx
+src/components/private-repos-dialog.tsx
+src/components/ui
+src/components/ui/button.tsx
+src/components/ui/card.tsx
+src/components/ui/dialog.tsx
+src/components/ui/input.tsx
+src/components/ui/progress.tsx
+src/components/ui/sonner.tsx
+src/components/ui/switch.tsx
+src/components/ui/textarea.tsx
+src/components/ui/tooltip.tsx
+src/env.js
+src/hooks
+src/hooks/useDiagram.ts
+src/hooks/useStarReminder.tsx
+src/lib
+src/lib/exampleRepos.ts
+src/lib/fetch-backend.ts
+src/lib/utils.ts
+src/server
+src/server/db
+src/server/db/index.ts
+src/server/db/schema.ts
+src/styles
+src/styles/globals.css
+start-database.sh
+tailwind.config.ts
+tsconfig.json
+&lt;/file_tree&gt;
+
+&lt;readme&gt;
+[![Image](./docs/readme_img.png &quot;GitDiagram Front Page&quot;)](https://gitdiagram.com/)
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Kofi](https://img.shields.io/badge/Kofi-F16061.svg?logo=ko-fi&amp;logoColor=white)](https://ko-fi.com/ahmedkhaleel2004)
+
+# GitDiagram
+
+Turn any GitHub repository into an interactive diagram for visualization in seconds.
+
+You can also replace <code>hub</code> with <code>diagram</code> in any Github URL to access its diagram.
+
+## 🚀 Features
+
+- 👀 **Instant Visualization**: Convert any GitHub repository structure into a system design / architecture diagram
+- 🎨 **Interactivity**: Click on components to navigate directly to source files and relevant directories
+- ⚡ **Fast Generation**: Powered by OpenAI o4-mini for quick and accurate diagrams
+- 🔄 **Customization**: Modify and regenerate diagrams with custom instructions
+- 🌐 **API Access**: Public API available for integration (WIP)
+
+## ⚙️ Tech Stack
+
+- **Frontend**: Next.js, TypeScript, Tailwind CSS, ShadCN
+- **Backend**: FastAPI, Python, Server Actions
+- **Database**: PostgreSQL (with Drizzle ORM)
+- **AI**: OpenAI o4-mini
+- **Deployment**: Vercel (Frontend), EC2 (Backend)
+- **CI/CD**: GitHub Actions
+- **Analytics**: PostHog, Api-Analytics
+
+## 🤔 About
+
+I created this because I wanted to contribute to open-source projects but quickly realized their codebases are too massive for me to dig through manually, so this helps me get started - but it&#x27;s definitely got many more use cases!
+
+Given any public (or private!) GitHub repository it generates diagrams in Mermaid.js with OpenAI&#x27;s o4-mini! (Previously Claude 3.5 Sonnet)
+
+I extract information from the file tree and README for details and interactivity (you can click components to be taken to relevant files and directories)
+
+Most of what you might call the &quot;processing&quot; of this app is done with prompt engineering - see <code>/backend/app/prompts.py</code>. This basically extracts and pipelines data and analysis for a larger action workflow, ending in the diagram code.
+
+## 🔒 How to diagram private repositories
+
+You can simply click on &quot;Private Repos&quot; in the header and follow the instructions by providing a GitHub personal access token with the <code>repo</code> scope.
+
+You can also self-host this app locally (backend separated as well!) with the steps below.
+
+## 🛠️ Self-hosting / Local Development
+
+1. Clone the repository
+
+<pre><code class="language-bash">git clone https://github.com/ahmedkhaleel2004/gitdiagram.git
+cd gitdiagram</code></pre>
+
+2. Install dependencies
+
+<pre><code class="language-bash">pnpm i</code></pre>
+
+3. Set up environment variables (create .env)
+
+<pre><code class="language-bash">cp .env.example .env</code></pre>
+
+Then edit the <code>.env</code> file with your Anthropic API key and optional GitHub personal access token.
+
+4. Run backend
+
+<pre><code class="language-bash">docker-compose up --build -d</code></pre>
+
+Logs available at <code>docker-compose logs -f</code>
+The FastAPI server will be available at <code>localhost:8000</code>
+
+5. Start local database
+
+<pre><code class="language-bash">chmod +x start-database.sh
+./start-database.sh</code></pre>
+
+When prompted to generate a random password, input yes.
+The Postgres database will start in a container at <code>localhost:5432</code>
+
+6. Initialize the database schema
+
+<pre><code class="language-bash">pnpm db:push</code></pre>
+
+You can view and interact with the database using <code>pnpm db:studio</code>
+
+7. Run Frontend
+
+<pre><code class="language-bash">pnpm dev</code></pre>
+
+You can now access the website at <code>localhost:3000</code> and edit the rate limits defined in <code>backend/app/routers/generate.py</code> in the generate function decorator.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Acknowledgements
+
+Shoutout to [Romain Courtois](https://github.com/cyclotruc)&#x27;s [Gitingest](https://gitingest.com/) for inspiration and styling
+
+## 📈 Rate Limits
+
+I am currently hosting it for free with no rate limits though this is somewhat likely to change in the future.
+
+&lt;!-- If you would like to bypass these, self-hosting instructions are provided. I also plan on adding an input for your own Anthropic API key.
+
+Diagram generation:
+
+- 1 request per minute
+- 5 requests per day --&gt;
+
+## 🤔 Future Steps
+
+- Implement font-awesome icons in diagram
+- Implement an embedded feature like star-history.com but for diagrams. The diagram could also be updated progressively as commits are made.
+
+&lt;/readme&gt;
+
+&lt;instructions&gt;
+
+&lt;/instructions&gt;</span></div><div class="message assistant"><span class="content-text">&lt;explanation&gt;
+1. Project Type &amp; Purpose  
+   - This is a full-stack web application (“GitDiagram”) whose purpose is to turn any GitHub repository into an interactive architecture diagram in seconds.  
+   - Frontend: Next.js + TypeScript + Tailwind CSS (hosted on Vercel).  
+   - Backend: FastAPI + Python (running in Docker behind Nginx on EC2).  
+   - Database: PostgreSQL (via Drizzle ORM).  
+   - External Services: OpenAI o4-mini, Anthropic Claude, GitHub API, PostHog Analytics.  
+   - CI/CD: GitHub Actions (deploy.yml).  
+
+2. File Structure Analysis  
+   - Top-level split:  
+     • backend/ – FastAPI app, routers (generate.py, modify.py), service layer (AI, GitHub), core utilities, Dockerfile, entrypoint, Nginx config.  
+     • src/ – Next.js app: pages (app/[username]/[repo]), server actions (_actions), React components, hooks, lib, styles.  
+     • docker-compose.yml + start-database.sh – local orchestration of backend, Postgres.  
+     • config files: drizzle.config.ts, next.config.js, GH workflows, eslint/prettier, tsconfig.  
+
+3. Key Insights from README  
+   - Frontend invokes backend via REST.  
+   - Prompt engineering drives diagram generation (<code>backend/app/prompts.py</code>).  
+   - Database holds user tokens, rate limits.  
+   - Private-repo support via personal access tokens.  
+   - Deploy targets: Vercel (frontend), EC2 (backend + Postgres).  
+
+4. Main Components &amp; Interactions  
+   A. User Browser (React UI)  
+      • Interacts with Next.js pages &amp; UI components (mermaid-diagram, action-button, dialog).  
+      • Triggers server actions or client fetch to <code>/api/**</code> routes.  
+   B. Next.js Frontend Server (Server-Side &amp; Server Actions)  
+      • SSR/SSG for initial page.  
+      • Server actions call <code>src/lib/fetch-backend.ts</code> to hit FastAPI endpoints.  
+   C. API Gateway (Nginx)  
+      • Routes frontend API calls to FastAPI container.  
+   D. FastAPI Backend  
+      • Routers: <code>/generate</code> (diagram creation), <code>/modify</code> (regeneration/customization).  
+      • Core services:  
+        – AI Services (o4-mini, Claude, openrouter wrappers)  
+        – GitHub Service (repository tree fetch)  
+        – Rate Limiter (backend/app/core/limiter.py)  
+        – Formatting Utils (format_message)  
+   E. Database (PostgreSQL)  
+      • Stores usage metrics, user tokens, private-repo access.  
+      • Managed by Drizzle ORM (<code>server/db/*.ts</code>).  
+   F. External APIs  
+      • GitHub REST API  
+      • OpenAI / Anthropic endpoints  
+      • Analytics: PostHog, Api-Analytics  
+
+5. Architectural Patterns &amp; Principles  
+   - Clear separation of concerns: UI ←→ API ←→ Services ←→ External APIs/DB.  
+   - Service Layer in backend to isolate AI provider logic.  
+   - Prompt Engineering pipeline: extract → transform → generate diagram code.  
+   - Infrastructure as code: Docker Compose for local, GH Actions for production.  
+
+6. Diagram Tailoring Guidelines (Full-Stack)  
+   a. Components:  
+      • Frontend (client + server actions)  
+      • API Gateway (nginx)  
+      • Backend (routers, services, core, utils)  
+      • Database (Postgres)  
+      • External Services (AI Providers, GitHub API, Analytics)  
+      • CI/CD (GitHub Actions)  
+      • Deployment targets (Vercel, EC2)  
+   b. Relationships &amp; Data Flows:  
+      • Draw arrows: Browser → Frontend → Backend → Services → External APIs → Backend → Frontend → Browser.  
+      • Include DB read/write arrows between Backend and PostgreSQL.  
+   c. Design Patterns:  
+      • Color-code:  
+        – Frontend (blue)  
+        – Backend (green)  
+        – Database (orange)  
+        – External (purple)  
+        – CI/CD (gray)  
+      • Shapes: Rectangles for apps, cylinders for DB, clouds for external services.  
+
+7. Diagramming Best Practices  
+   - Label each box clearly (e.g., “FastAPI Generate Router”).  
+   - Show directional arrows to indicate request/response flow.  
+   - Annotate critical steps: rate limiting, prompt formatting, mermaid code generation.  
+   - Highlight technology stacks inside each component (e.g., Next.js, FastAPI, Drizzle).  
+   - Optionally, show GH Actions workflow as a side box feeding into Vercel/EC2.  
+
+By mapping these components and their interactions, you’ll produce a detailed, accurate system-design diagram that mirrors the actual architecture of GitDiagram.  
+&lt;/explanation&gt;</span></div>
+            </div>
+        </body>
+        </html>
+        
+            <div class="conversation-divider" style="text-align: center; margin: 20px 0; color: #6b7280; font-size: 14px;">
+                <span style="display: inline-block; position: relative; padding: 0 10px; background: #f7f7f8;">
+                    <span style="border-top: 1px solid #d1d5db; position: absolute; top: 50%; left: 0; width: 100%; z-index: -1;"></span>
+                    ———Step 1———
+                </span>
+            </div>
+            <div class="message system"><span class="content-text">
+You are tasked with mapping key components of a system design to their corresponding files and directories in a project&#x27;s file structure. You will be provided with a detailed explanation of the system design/architecture and a file tree of the project.
+
+First, carefully read the system design explanation which will be enclosed in &lt;explanation&gt; tags in the users message.
+
+Then, examine the file tree of the project which will be enclosed in &lt;file_tree&gt; tags in the users message.
+
+Your task is to analyze the system design explanation and identify key components, modules, or services mentioned. Then, try your best to map these components to what you believe could be their corresponding directories and files in the provided file tree.
+
+Guidelines:
+1. Focus on major components described in the system design.
+2. Look for directories and files that clearly correspond to these components.
+3. Include both directories and specific files when relevant.
+4. If a component doesn&#x27;t have a clear corresponding file or directory, simply dont include it in the map.
+
+Now, provide your final answer in the following format:
+
+&lt;component_mapping&gt;
+1. [Component Name]: [File/Directory Path]
+2. [Component Name]: [File/Directory Path]
+[Continue for all identified components]
+&lt;/component_mapping&gt;
+
+Remember to be as specific as possible in your mappings, only use what is given to you from the file tree, and to strictly follow the components mentioned in the explanation. 
+</span></div><div class="message user"><span class="content-text">&lt;explanation&gt;
+&lt;explanation&gt;
+1. Project Type &amp; Purpose  
+   - This is a full-stack web application (“GitDiagram”) whose purpose is to turn any GitHub repository into an interactive architecture diagram in seconds.  
+   - Frontend: Next.js + TypeScript + Tailwind CSS (hosted on Vercel).  
+   - Backend: FastAPI + Python (running in Docker behind Nginx on EC2).  
+   - Database: PostgreSQL (via Drizzle ORM).  
+   - External Services: OpenAI o4-mini, Anthropic Claude, GitHub API, PostHog Analytics.  
+   - CI/CD: GitHub Actions (deploy.yml).  
+
+2. File Structure Analysis  
+   - Top-level split:  
+     • backend/ – FastAPI app, routers (generate.py, modify.py), service layer (AI, GitHub), core utilities, Dockerfile, entrypoint, Nginx config.  
+     • src/ – Next.js app: pages (app/[username]/[repo]), server actions (_actions), React components, hooks, lib, styles.  
+     • docker-compose.yml + start-database.sh – local orchestration of backend, Postgres.  
+     • config files: drizzle.config.ts, next.config.js, GH workflows, eslint/prettier, tsconfig.  
+
+3. Key Insights from README  
+   - Frontend invokes backend via REST.  
+   - Prompt engineering drives diagram generation (<code>backend/app/prompts.py</code>).  
+   - Database holds user tokens, rate limits.  
+   - Private-repo support via personal access tokens.  
+   - Deploy targets: Vercel (frontend), EC2 (backend + Postgres).  
+
+4. Main Components &amp; Interactions  
+   A. User Browser (React UI)  
+      • Interacts with Next.js pages &amp; UI components (mermaid-diagram, action-button, dialog).  
+      • Triggers server actions or client fetch to <code>/api/**</code> routes.  
+   B. Next.js Frontend Server (Server-Side &amp; Server Actions)  
+      • SSR/SSG for initial page.  
+      • Server actions call <code>src/lib/fetch-backend.ts</code> to hit FastAPI endpoints.  
+   C. API Gateway (Nginx)  
+      • Routes frontend API calls to FastAPI container.  
+   D. FastAPI Backend  
+      • Routers: <code>/generate</code> (diagram creation), <code>/modify</code> (regeneration/customization).  
+      • Core services:  
+        – AI Services (o4-mini, Claude, openrouter wrappers)  
+        – GitHub Service (repository tree fetch)  
+        – Rate Limiter (backend/app/core/limiter.py)  
+        – Formatting Utils (format_message)  
+   E. Database (PostgreSQL)  
+      • Stores usage metrics, user tokens, private-repo access.  
+      • Managed by Drizzle ORM (<code>server/db/*.ts</code>).  
+   F. External APIs  
+      • GitHub REST API  
+      • OpenAI / Anthropic endpoints  
+      • Analytics: PostHog, Api-Analytics  
+
+5. Architectural Patterns &amp; Principles  
+   - Clear separation of concerns: UI ←→ API ←→ Services ←→ External APIs/DB.  
+   - Service Layer in backend to isolate AI provider logic.  
+   - Prompt Engineering pipeline: extract → transform → generate diagram code.  
+   - Infrastructure as code: Docker Compose for local, GH Actions for production.  
+
+6. Diagram Tailoring Guidelines (Full-Stack)  
+   a. Components:  
+      • Frontend (client + server actions)  
+      • API Gateway (nginx)  
+      • Backend (routers, services, core, utils)  
+      • Database (Postgres)  
+      • External Services (AI Providers, GitHub API, Analytics)  
+      • CI/CD (GitHub Actions)  
+      • Deployment targets (Vercel, EC2)  
+   b. Relationships &amp; Data Flows:  
+      • Draw arrows: Browser → Frontend → Backend → Services → External APIs → Backend → Frontend → Browser.  
+      • Include DB read/write arrows between Backend and PostgreSQL.  
+   c. Design Patterns:  
+      • Color-code:  
+        – Frontend (blue)  
+        – Backend (green)  
+        – Database (orange)  
+        – External (purple)  
+        – CI/CD (gray)  
+      • Shapes: Rectangles for apps, cylinders for DB, clouds for external services.  
+
+7. Diagramming Best Practices  
+   - Label each box clearly (e.g., “FastAPI Generate Router”).  
+   - Show directional arrows to indicate request/response flow.  
+   - Annotate critical steps: rate limiting, prompt formatting, mermaid code generation.  
+   - Highlight technology stacks inside each component (e.g., Next.js, FastAPI, Drizzle).  
+   - Optionally, show GH Actions workflow as a side box feeding into Vercel/EC2.  
+
+By mapping these components and their interactions, you’ll produce a detailed, accurate system-design diagram that mirrors the actual architecture of GitDiagram.  
+&lt;/explanation&gt;
+&lt;/explanation&gt;
+
+&lt;file_tree&gt;
+.cursor
+.cursor/rules
+.cursor/rules/summary.mdc
+.env.example
+.eslintrc.cjs
+.github
+.github/FUNDING.yml
+.github/workflows
+.github/workflows/deploy.yml
+.gitignore
+LICENSE
+README.md
+backend
+backend/Dockerfile
+backend/app
+backend/app/__init__.py
+backend/app/core
+backend/app/core/limiter.py
+backend/app/main.py
+backend/app/prompts.py
+backend/app/routers
+backend/app/routers/generate.py
+backend/app/routers/modify.py
+backend/app/services
+backend/app/services/claude_service.py
+backend/app/services/github_service.py
+backend/app/services/o1_mini_openai_service.py
+backend/app/services/o3_mini_openai_service.py
+backend/app/services/o3_mini_openrouter_service.py
+backend/app/services/o4_mini_openai_service.py
+backend/app/utils
+backend/app/utils/format_message.py
+backend/deploy.sh
+backend/entrypoint.sh
+backend/nginx
+backend/nginx/api.conf
+backend/nginx/setup_nginx.sh
+backend/requirements.txt
+components.json
+docker-compose.yml
+docs
+drizzle.config.ts
+next.config.js
+package.json
+pnpm-lock.yaml
+postcss.config.js
+prettier.config.js
+public
+src
+src/app
+src/app/[username]
+src/app/[username]/[repo]
+src/app/[username]/[repo]/page.tsx
+src/app/_actions
+src/app/_actions/cache.ts
+src/app/_actions/github.ts
+src/app/_actions/repo.ts
+src/app/layout.tsx
+src/app/page.tsx
+src/app/providers.tsx
+src/components
+src/components/action-button.tsx
+src/components/api-key-button.tsx
+src/components/api-key-dialog.tsx
+src/components/copy-button.tsx
+src/components/customization-dropdown.tsx
+src/components/export-dropdown.tsx
+src/components/footer.tsx
+src/components/header.tsx
+src/components/hero.tsx
+src/components/loading-animation.tsx
+src/components/loading.tsx
+src/components/main-card.tsx
+src/components/mermaid-diagram.tsx
+src/components/private-repos-dialog.tsx
+src/components/ui
+src/components/ui/button.tsx
+src/components/ui/card.tsx
+src/components/ui/dialog.tsx
+src/components/ui/input.tsx
+src/components/ui/progress.tsx
+src/components/ui/sonner.tsx
+src/components/ui/switch.tsx
+src/components/ui/textarea.tsx
+src/components/ui/tooltip.tsx
+src/env.js
+src/hooks
+src/hooks/useDiagram.ts
+src/hooks/useStarReminder.tsx
+src/lib
+src/lib/exampleRepos.ts
+src/lib/fetch-backend.ts
+src/lib/utils.ts
+src/server
+src/server/db
+src/server/db/index.ts
+src/server/db/schema.ts
+src/styles
+src/styles/globals.css
+start-database.sh
+tailwind.config.ts
+tsconfig.json
+&lt;/file_tree&gt;</span></div><div class="message assistant"><span class="content-text">&lt;component_mapping&gt;
+1. Frontend UI Components: src/components
+2. Next.js App Routes: src/app (including src/app/[username]/[repo]/page.tsx, src/app/page.tsx, src/app/layout.tsx)
+3. Next.js Server Actions: src/app/_actions (cache.ts, github.ts, repo.ts) and src/lib/fetch-backend.ts
+4. API Gateway (Nginx) Config: backend/nginx/api.conf and backend/nginx/setup_nginx.sh
+5. FastAPI Main Entry: backend/app/main.py
+6. FastAPI Routers – Generate &amp; Modify: backend/app/routers/generate.py, backend/app/routers/modify.py
+7. FastAPI Core Rate Limiter: backend/app/core/limiter.py
+8. Prompt Engineering Module: backend/app/prompts.py
+9. AI Service Layer:
+   • Anthropic Claude: backend/app/services/claude_service.py
+   • OpenAI o1-mini: backend/app/services/o1_mini_openai_service.py
+   • OpenAI o3-mini: backend/app/services/o3_mini_openai_service.py
+   • OpenRouter o3-mini: backend/app/services/o3_mini_openrouter_service.py
+   • OpenAI o4-mini: backend/app/services/o4_mini_openai_service.py
+10. GitHub Service Integration: backend/app/services/github_service.py
+11. Formatting Utilities: backend/app/utils/format_message.py
+12. Backend Container Setup:
+   • Dockerfile: backend/Dockerfile
+   • Entrypoint Script: backend/entrypoint.sh
+   • Deployment Script: backend/deploy.sh
+   • Requirements: backend/requirements.txt
+13. Database &amp; ORM:
+   • Drizzle Config: drizzle.config.ts
+   • DB Schema &amp; Client: src/server/db/schema.ts, src/server/db/index.ts
+   • Local DB Orchestration: docker-compose.yml, start-database.sh
+14. CI/CD Workflow: .github/workflows/deploy.yml
+15. Frontend Configuration:
+   • Next.js Config: next.config.js
+   • Tailwind Config: tailwind.config.ts
+   • ESLint Config: .eslintrc.cjs
+   • Prettier Config: prettier.config.js
+   • TypeScript Config: tsconfig.json
+&lt;/component_mapping&gt;</span></div>
+            </div>
+        </body>
+        </html>
+        
+            <div class="conversation-divider" style="text-align: center; margin: 20px 0; color: #6b7280; font-size: 14px;">
+                <span style="display: inline-block; position: relative; padding: 0 10px; background: #f7f7f8;">
+                    <span style="border-top: 1px solid #d1d5db; position: absolute; top: 50%; left: 0; width: 100%; z-index: -1;"></span>
+                    ———Step 2———
+                </span>
+            </div>
+            <div class="message system"><span class="content-text">
+You are a principal software engineer tasked with creating a system design diagram using Mermaid.js based on a detailed explanation. Your goal is to accurately represent the architecture and design of the project as described in the explanation.
+
+The detailed explanation of the design will be enclosed in &lt;explanation&gt; tags in the users message.
+
+Also, sourced from the explanation, as a bonus, a few of the identified components have been mapped to their paths in the project file tree, whether it is a directory or file which will be enclosed in &lt;component_mapping&gt; tags in the users message.
+
+To create the Mermaid.js diagram:
+
+1. Carefully read and analyze the provided design explanation.
+2. Identify the main components, services, and their relationships within the system.
+3. Determine the appropriate Mermaid.js diagram type to use (e.g., flowchart, sequence diagram, class diagram, architecture, etc.) based on the nature of the system described.
+4. Create the Mermaid.js code to represent the design, ensuring that:
+   a. All major components are included
+   b. Relationships between components are clearly shown
+   c. The diagram accurately reflects the architecture described in the explanation
+   d. The layout is logical and easy to understand
+
+Guidelines for diagram components and relationships:
+- Use appropriate shapes for different types of components (e.g., rectangles for services, cylinders for databases, etc.)
+- Use clear and concise labels for each component
+- Show the direction of data flow or dependencies using arrows
+- Group related components together if applicable
+- Include any important notes or annotations mentioned in the explanation
+- Just follow the explanation. It will have everything you need.
+
+IMPORTANT!!: Please orient and draw the diagram as vertically as possible. You must avoid long horizontal lists of nodes and sections!
+
+You must include click events for components of the diagram that have been specified in the provided &lt;component_mapping&gt;:
+- Do not try to include the full url. This will be processed by another program afterwards. All you need to do is include the path.
+- For example:
+  - This is a correct click event: <code>click Example &quot;app/example.js&quot;</code>
+  - This is an incorrect click event: <code>click Example &quot;https://github.com/username/repo/blob/main/app/example.js&quot;</code>
+- Do this for as many components as specified in the component mapping, include directories and files.
+  - If you believe the component contains files and is a directory, include the directory path.
+  - If you believe the component references a specific file, include the file path.
+- Make sure to include the full path to the directory or file exactly as specified in the component mapping.
+- It is very important that you do this for as many files as possible. The more the better.
+
+- IMPORTANT: THESE PATHS ARE FOR CLICK EVENTS ONLY, these paths should not be included in the diagram&#x27;s node&#x27;s names. Only for the click events. Paths should not be seen by the user.
+
+Your output should be valid Mermaid.js code that can be rendered into a diagram.
+
+Do not include an init declaration such as <code>%%{init: {&#x27;key&#x27;:&#x27;etc&#x27;}}%%</code>. This is handled externally. Just return the diagram code.
+
+Your response must strictly be just the Mermaid.js code, without any additional text or explanations.
+No code fence or markdown ticks needed, simply return the Mermaid.js code.
+
+Ensure that your diagram adheres strictly to the given explanation, without adding or omitting any significant components or relationships. 
+
+For general direction, the provided example below is how you should structure your code:
+
+<pre><code class="language-mermaid">flowchart TD 
+    %% or graph TD, your choice
+
+    %% Global entities
+    A(&quot;Entity A&quot;):::external
+    %% more...
+
+    %% Subgraphs and modules
+    subgraph &quot;Layer A&quot;
+        A1(&quot;Module A&quot;):::example
+        %% more modules...
+        %% inner subgraphs if needed...
+    end
+
+    %% more subgraphs, modules, etc...
+
+    %% Connections
+    A --&gt;|&quot;relationship&quot;| B
+    %% and a lot more...
+
+    %% Click Events
+    click A1 &quot;example/example.js&quot;
+    %% and a lot more...
+
+    %% Styles
+    classDef frontend %%...
+    %% and a lot more...</code></pre>
+
+EXTREMELY Important notes on syntax!!! (PAY ATTENTION TO THIS):
+- Make sure to add colour to the diagram!!! This is extremely critical.
+- In Mermaid.js syntax, we cannot include special characters for nodes without being inside quotes! For example: <code>EX[/api/process (Backend)]:::api</code> and <code>API --&gt;|calls Process()| Backend</code> are two examples of syntax errors. They should be <code>EX[&quot;/api/process (Backend)&quot;]:::api</code> and <code>API --&gt;|&quot;calls Process()&quot;| Backend</code> respectively. Notice the quotes. This is extremely important. Make sure to include quotes for any string that contains special characters.
+- In Mermaid.js syntax, you cannot apply a class style directly within a subgraph declaration. For example: <code>subgraph &quot;Frontend Layer&quot;:::frontend</code> is a syntax error. However, you can apply them to nodes within the subgraph. For example: <code>Example[&quot;Example Node&quot;]:::frontend</code> is valid, and <code>class Example1,Example2 frontend</code> is valid.
+- In Mermaid.js syntax, there cannot be spaces in the relationship label names. For example: <code>A --&gt;| &quot;example relationship&quot; | B</code> is a syntax error. It should be <code>A --&gt;|&quot;example relationship&quot;| B</code> 
+- In Mermaid.js syntax, you cannot give subgraphs an alias like nodes. For example: <code>subgraph A &quot;Layer A&quot;</code> is a syntax error. It should be <code>subgraph &quot;Layer A&quot;</code> 
+</span></div><div class="message user"><span class="content-text">&lt;explanation&gt;
+&lt;explanation&gt;
+1. Project Type &amp; Purpose  
+   - This is a full-stack web application (“GitDiagram”) whose purpose is to turn any GitHub repository into an interactive architecture diagram in seconds.  
+   - Frontend: Next.js + TypeScript + Tailwind CSS (hosted on Vercel).  
+   - Backend: FastAPI + Python (running in Docker behind Nginx on EC2).  
+   - Database: PostgreSQL (via Drizzle ORM).  
+   - External Services: OpenAI o4-mini, Anthropic Claude, GitHub API, PostHog Analytics.  
+   - CI/CD: GitHub Actions (deploy.yml).  
+
+2. File Structure Analysis  
+   - Top-level split:  
+     • backend/ – FastAPI app, routers (generate.py, modify.py), service layer (AI, GitHub), core utilities, Dockerfile, entrypoint, Nginx config.  
+     • src/ – Next.js app: pages (app/[username]/[repo]), server actions (_actions), React components, hooks, lib, styles.  
+     • docker-compose.yml + start-database.sh – local orchestration of backend, Postgres.  
+     • config files: drizzle.config.ts, next.config.js, GH workflows, eslint/prettier, tsconfig.  
+
+3. Key Insights from README  
+   - Frontend invokes backend via REST.  
+   - Prompt engineering drives diagram generation (<code>backend/app/prompts.py</code>).  
+   - Database holds user tokens, rate limits.  
+   - Private-repo support via personal access tokens.  
+   - Deploy targets: Vercel (frontend), EC2 (backend + Postgres).  
+
+4. Main Components &amp; Interactions  
+   A. User Browser (React UI)  
+      • Interacts with Next.js pages &amp; UI components (mermaid-diagram, action-button, dialog).  
+      • Triggers server actions or client fetch to <code>/api/**</code> routes.  
+   B. Next.js Frontend Server (Server-Side &amp; Server Actions)  
+      • SSR/SSG for initial page.  
+      • Server actions call <code>src/lib/fetch-backend.ts</code> to hit FastAPI endpoints.  
+   C. API Gateway (Nginx)  
+      • Routes frontend API calls to FastAPI container.  
+   D. FastAPI Backend  
+      • Routers: <code>/generate</code> (diagram creation), <code>/modify</code> (regeneration/customization).  
+      • Core services:  
+        – AI Services (o4-mini, Claude, openrouter wrappers)  
+        – GitHub Service (repository tree fetch)  
+        – Rate Limiter (backend/app/core/limiter.py)  
+        – Formatting Utils (format_message)  
+   E. Database (PostgreSQL)  
+      • Stores usage metrics, user tokens, private-repo access.  
+      • Managed by Drizzle ORM (<code>server/db/*.ts</code>).  
+   F. External APIs  
+      • GitHub REST API  
+      • OpenAI / Anthropic endpoints  
+      • Analytics: PostHog, Api-Analytics  
+
+5. Architectural Patterns &amp; Principles  
+   - Clear separation of concerns: UI ←→ API ←→ Services ←→ External APIs/DB.  
+   - Service Layer in backend to isolate AI provider logic.  
+   - Prompt Engineering pipeline: extract → transform → generate diagram code.  
+   - Infrastructure as code: Docker Compose for local, GH Actions for production.  
+
+6. Diagram Tailoring Guidelines (Full-Stack)  
+   a. Components:  
+      • Frontend (client + server actions)  
+      • API Gateway (nginx)  
+      • Backend (routers, services, core, utils)  
+      • Database (Postgres)  
+      • External Services (AI Providers, GitHub API, Analytics)  
+      • CI/CD (GitHub Actions)  
+      • Deployment targets (Vercel, EC2)  
+   b. Relationships &amp; Data Flows:  
+      • Draw arrows: Browser → Frontend → Backend → Services → External APIs → Backend → Frontend → Browser.  
+      • Include DB read/write arrows between Backend and PostgreSQL.  
+   c. Design Patterns:  
+      • Color-code:  
+        – Frontend (blue)  
+        – Backend (green)  
+        – Database (orange)  
+        – External (purple)  
+        – CI/CD (gray)  
+      • Shapes: Rectangles for apps, cylinders for DB, clouds for external services.  
+
+7. Diagramming Best Practices  
+   - Label each box clearly (e.g., “FastAPI Generate Router”).  
+   - Show directional arrows to indicate request/response flow.  
+   - Annotate critical steps: rate limiting, prompt formatting, mermaid code generation.  
+   - Highlight technology stacks inside each component (e.g., Next.js, FastAPI, Drizzle).  
+   - Optionally, show GH Actions workflow as a side box feeding into Vercel/EC2.  
+
+By mapping these components and their interactions, you’ll produce a detailed, accurate system-design diagram that mirrors the actual architecture of GitDiagram.  
+&lt;/explanation&gt;
+&lt;/explanation&gt;
+
+&lt;component_mapping&gt;
+&lt;component_mapping&gt;
+1. Frontend UI Components: src/components
+2. Next.js App Routes: src/app (including src/app/[username]/[repo]/page.tsx, src/app/page.tsx, src/app/layout.tsx)
+3. Next.js Server Actions: src/app/_actions (cache.ts, github.ts, repo.ts) and src/lib/fetch-backend.ts
+4. API Gateway (Nginx) Config: backend/nginx/api.conf and backend/nginx/setup_nginx.sh
+5. FastAPI Main Entry: backend/app/main.py
+6. FastAPI Routers – Generate &amp; Modify: backend/app/routers/generate.py, backend/app/routers/modify.py
+7. FastAPI Core Rate Limiter: backend/app/core/limiter.py
+8. Prompt Engineering Module: backend/app/prompts.py
+9. AI Service Layer:
+   • Anthropic Claude: backend/app/services/claude_service.py
+   • OpenAI o1-mini: backend/app/services/o1_mini_openai_service.py
+   • OpenAI o3-mini: backend/app/services/o3_mini_openai_service.py
+   • OpenRouter o3-mini: backend/app/services/o3_mini_openrouter_service.py
+   • OpenAI o4-mini: backend/app/services/o4_mini_openai_service.py
+10. GitHub Service Integration: backend/app/services/github_service.py
+11. Formatting Utilities: backend/app/utils/format_message.py
+12. Backend Container Setup:
+   • Dockerfile: backend/Dockerfile
+   • Entrypoint Script: backend/entrypoint.sh
+   • Deployment Script: backend/deploy.sh
+   • Requirements: backend/requirements.txt
+13. Database &amp; ORM:
+   • Drizzle Config: drizzle.config.ts
+   • DB Schema &amp; Client: src/server/db/schema.ts, src/server/db/index.ts
+   • Local DB Orchestration: docker-compose.yml, start-database.sh
+14. CI/CD Workflow: .github/workflows/deploy.yml
+15. Frontend Configuration:
+   • Next.js Config: next.config.js
+   • Tailwind Config: tailwind.config.ts
+   • ESLint Config: .eslintrc.cjs
+   • Prettier Config: prettier.config.js
+   • TypeScript Config: tsconfig.json
+
+&lt;/component_mapping&gt;
+
+&lt;instructions&gt;
+
+&lt;/instructions&gt;</span></div><div class="message assistant"><span class="content-text">flowchart TD
+    subgraph &quot;Frontend&quot;
+        Browser[&quot;User Browser (React UI)&quot;]:::frontend
+        Components[&quot;UI Components&quot;]:::frontend
+        Routes[&quot;Next.js App Routes&quot;]:::frontend
+        Actions[&quot;Server Actions &amp; fetch-backend.ts&quot;]:::frontend
+        Config[&quot;Frontend Config&quot;]:::frontend
+    end
+
+    subgraph &quot;API Gateway\n(Nginx)&quot;
+        Gateway[&quot;Nginx API Gateway&quot;]:::backend
+    end
+
+    subgraph &quot;Backend&quot;
+        API[&quot;FastAPI Entry&quot;]:::backend
+        Gen[&quot;Generate Router\n(/generate)&quot;]:::backend
+        Mod[&quot;Modify Router\n(/modify)&quot;]:::backend
+        Limiter[&quot;Rate Limiter&quot;]:::backend
+        Prompt[&quot;Prompt Engineering&quot;]:::backend
+        Formatter[&quot;Formatting Utils&quot;]:::backend
+        subgraph &quot;AI Services&quot;
+            Claude[&quot;Anthropic Claude&quot;]:::backend
+            O1[&quot;OpenAI o1-mini&quot;]:::backend
+            O3[&quot;OpenAI o3-mini&quot;]:::backend
+            OR[&quot;OpenRouter o3-mini&quot;]:::backend
+            O4[&quot;OpenAI o4-mini&quot;]:::backend
+        end
+        GHSvc[&quot;GitHub Service&quot;]:::backend
+        Container[&quot;Container Setup&quot;]:::backend
+    end
+
+    subgraph &quot;Database&quot;
+        DB[(PostgreSQL)]:::database
+    end
+
+    subgraph &quot;External Services&quot;
+        GHAPI[&quot;GitHub REST API&quot;]:::external
+        OpenAIExt[&quot;OpenAI / Anthropic&quot;]:::external
+        Analytics[&quot;PostHog Analytics&quot;]:::external
+    end
+
+    subgraph &quot;CI/CD&quot;
+        CI[&quot;GitHub Actions: deploy.yml&quot;]:::cicd
+        Vercel[&quot;Vercel&quot;]:::cicd
+        EC2[&quot;EC2&quot;]:::cicd
+    end
+
+    Browser --&gt; Components
+    Browser --&gt; Routes
+    Browser --&gt; Actions
+    Components --&gt; Actions
+    Routes --&gt; Actions
+    Actions --&gt; Gateway
+    Gateway --&gt; API
+    API --&gt; Gen
+    API --&gt; Mod
+    Gen --&gt; Limiter
+    Mod --&gt; Limiter
+    Limiter --&gt; Prompt
+    Prompt --&gt; Formatter
+    Formatter --&gt; Gen
+    Prompt --&gt; Claude
+    Prompt --&gt; O1
+    Prompt --&gt; O3
+    Prompt --&gt; OR
+    Prompt --&gt; O4
+    Prompt --&gt; GHSvc
+    GHSvc --&gt; GHAPI
+    Claude --&gt; OpenAIExt
+    O1 --&gt; OpenAIExt
+    O3 --&gt; OpenAIExt
+    OR --&gt; OpenAIExt
+    O4 --&gt; OpenAIExt
+    API --&gt; DB
+    DB --&gt; API
+    CI --&gt; Vercel
+    CI --&gt; EC2
+
+    click Components &quot;src/components&quot;
+    click Routes &quot;src/app&quot;
+    click Actions &quot;src/app/_actions&quot;
+    click Actions &quot;src/lib/fetch-backend.ts&quot;
+    click Gateway &quot;backend/nginx/api.conf&quot;
+    click Gateway &quot;backend/nginx/setup_nginx.sh&quot;
+    click API &quot;backend/app/main.py&quot;
+    click Gen &quot;backend/app/routers/generate.py&quot;
+    click Mod &quot;backend/app/routers/modify.py&quot;
+    click Limiter &quot;backend/app/core/limiter.py&quot;
+    click Prompt &quot;backend/app/prompts.py&quot;
+    click Claude &quot;backend/app/services/claude_service.py&quot;
+    click O1 &quot;backend/app/services/o1_mini_openai_service.py&quot;
+    click O3 &quot;backend/app/services/o3_mini_openai_service.py&quot;
+    click OR &quot;backend/app/services/o3_mini_openrouter_service.py&quot;
+    click O4 &quot;backend/app/services/o4_mini_openai_service.py&quot;
+    click GHSvc &quot;backend/app/services/github_service.py&quot;
+    click Formatter &quot;backend/app/utils/format_message.py&quot;
+    click Container &quot;backend/Dockerfile&quot;
+    click Container &quot;backend/entrypoint.sh&quot;
+    click Container &quot;backend/deploy.sh&quot;
+    click Container &quot;backend/requirements.txt&quot;
+    click DB &quot;drizzle.config.ts&quot;
+    click DB &quot;src/server/db/schema.ts&quot;
+    click DB &quot;src/server/db/index.ts&quot;
+    click DB &quot;docker-compose.yml&quot;
+    click DB &quot;start-database.sh&quot;
+    click CI &quot;.github/workflows/deploy.yml&quot;
+    click Config &quot;next.config.js&quot;
+    click Config &quot;tailwind.config.ts&quot;
+    click Config &quot;.eslintrc.cjs&quot;
+    click Config &quot;prettier.config.js&quot;
+    click Config &quot;tsconfig.json&quot;
+
+    classDef frontend fill:#cce5ff,stroke:#333,stroke-width:1px
+    classDef backend fill:#d4edda,stroke:#333,stroke-width:1px
+    classDef database fill:#ffe5b4,stroke:#333,stroke-width:1px
+    classDef external fill:#e2d1f9,stroke:#333,stroke-width:1px
+    classDef cicd fill:#e0e0e0,stroke:#333,stroke-width:1px</span></div>
+            </div>
+        </body>
+        </html>
+        
