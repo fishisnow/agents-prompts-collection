@@ -54,6 +54,13 @@
             padding: 60px 20px;
         }
 
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 32px;
+            align-items: start;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 60px;
@@ -77,9 +84,13 @@
             background: var(--card-bg);
             border-radius: 8px;
             padding: 30px;
-            margin-bottom: 40px;
+            margin-bottom: 0;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border-color);
+            min-width: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
 
         .agent-section h2 {
@@ -103,8 +114,8 @@
         }
 
         .example-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
             gap: 20px;
         }
 
@@ -114,13 +125,35 @@
             border-radius: 8px;
             padding: 20px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 280px;
+            max-width: none;
+            position: relative;
+            overflow: hidden;
         }
 
         .example-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
             border-color: var(--accent-color);
+        }
+        
+        .example-card::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            border-bottom: 2px solid var(--accent-color);
+            border-right: 2px solid var(--accent-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .example-card:hover::after {
+            opacity: 1;
         }
 
         .example-card h3 {
@@ -202,9 +235,22 @@
             .header h1 {
                 font-size: 2rem;
             }
-
-            .example-grid {
+            
+            .sections-grid {
                 grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .agent-section {
+                padding: 20px;
+            }
+            
+            .example-grid {
+                flex-direction: column;
+            }
+            
+            .example-card {
+                min-width: 100%;
             }
         }
     </style>
@@ -223,91 +269,94 @@
         <p>探索 AI 智能代理的交互能力 - 展示开源 AI Agent 的实际应用过程的对话演示</p>
     </div>
 
-    <section class="agent-section">
-        <h2><a href="https://github.com/cline/cline" target="_blank">cline</a></h2>
-        <div class="example-grid">
-            <div class="example-card" data-path="cline/conversation_tetris.html">
-                <h3>VSCode Cline 插件 AI 编程示例</h3>
-                <p>开发一个俄罗斯方块的网页游戏</p>
+    <div class="sections-grid">
+        <section class="agent-section">
+            <h2><a href="https://github.com/cline/cline" target="_blank">cline</a></h2>
+            <div class="example-grid">
+                <div class="example-card" data-path="cline/conversation_tetris.html">
+                    <h3>VSCode Cline 插件 AI 编程示例</h3>
+                    <p>开发一个俄罗斯方块的网页游戏</p>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="agent-section">
-        <h2><a href="https://github.com/ahmedkhaleel2004/gitdiagram" target="_blank">gitdiagram</a></h2>
-        <div class="example-grid">
-            <div class="example-card" data-path="gitdiagram/conversation_generate_diagram.html">
-                <h3>为 github 项目生成一个系统架构图</h3>
-                <p>使用 Mermaid.js 为 gitdiagram 项目生成一份系统架构图</p>
+        <section class="agent-section">
+            <h2><a href="https://github.com/ahmedkhaleel2004/gitdiagram" target="_blank">gitdiagram</a></h2>
+            <div class="example-grid">
+                <div class="example-card" data-path="gitdiagram/conversation_generate_diagram.html">
+                    <h3>为 github 项目生成一个系统架构图</h3>
+                    <p>使用 Mermaid.js 为 gitdiagram 项目生成一份系统架构图</p>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="agent-section">
-        <h2><a href="https://github.com/openai/openai-agents-python" target="_blank">openai-agents</a></h2>
-        <div class="example-grid">
-            <div class="example-card" data-path="openai_agents/conversation_filesystem_mcp.html">
-                <h3>MCP Filesystem 示例</h3>
-                <p>展示AI代理如何基于文件系统的 mcp server 完成用户任务的过程。</p>
+        <section class="agent-section">
+            <h2><a href="https://github.com/openai/openai-agents-python" target="_blank">openai-agents</a></h2>
+            <div class="example-grid">
+                <div class="example-card" data-path="openai_agents/conversation_filesystem_mcp.html">
+                    <h3>MCP Filesystem 示例</h3>
+                    <p>展示AI代理如何基于文件系统的 mcp server 完成用户任务的过程。</p>
+                </div>
+                <div class="example-card" data-path="openai_agents/conversation_financial_research.html">
+                    <h3>专业的金融研究助理的示例</h3>
+                    <p>撰写一份对苹果公司最近一个季度的分析。</p>
+                </div>
             </div>
-            <div class="example-card" data-path="openai_agents/conversation_financial_research.html">
-                <h3>专业的金融研究助理的示例</h3>
-                <p>撰写一份对苹果公司最近一个季度的分析。</p>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="agent-section">
-        <h2><a href="https://github.com/browser-use/browser-use" target="_blank">Browser Use</a></h2>
-        <div class="example-grid">
-            <div class="example-card" data-path="browser_use/conversation_add_todo.html">
-                <h3>智能待办事项添加</h3>
-                <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
-            </div>
-        </div>
-    </section>
 
-    <section class="agent-section">
-        <h2><a href="https://github.com/mannaandpoem/OpenManus" target="_blank">OpenManus</a></h2>
-        <div class="example-grid">
-            <div class="example-card" data-path="OpenManus/conversation_add_todo.html">
-                <h3>智能待办事项添加</h3>
-                <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
+        <section class="agent-section">
+            <h2><a href="https://github.com/web-infra-dev/midscene" target="_blank">MidScene</a></h2>
+            <div class="example-grid">
+                <div class="example-card" data-path="midscene/conversation_plan_by_domtree.html">
+                    <h3>智能任务规划</h3>
+                    <p>根据截图和页面 Dom 树的智能任务分析与执行规划</p>
+                </div>
+                <div class="example-card" data-path="midscene/conversation_plan_by_vision.html">
+                    <h3>智能任务规划</h3>
+                    <p>基于界面元素视觉定位的智能任务分析与执行规划</p>
+                </div>
+                <div class="example-card" data-path="midscene/conversation_inspect_by_domtree.html">
+                    <h3>DOM智能识别</h3>
+                    <p>根据截图和页面 Dom 树，精确识别页面元素的 ID</p>
+                </div>
+                <div class="example-card" data-path="midscene/conversation_inspect_by_vision.html">
+                    <h3>视觉智能定位</h3>
+                    <p>基于界面元素视觉定位，返回元素的坐标（需使用支持视觉定位的大模型）</p>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="agent-section">
-        <h2><a href="https://github.com/web-infra-dev/midscene" target="_blank">MidScene</a></h2>
-        <div class="example-grid">
-            <div class="example-card" data-path="midscene/conversation_plan_by_domtree.html">
-                <h3>智能任务规划</h3>
-                <p>根据截图和页面 Dom 树的智能任务分析与执行规划</p>
+        <section class="agent-section">
+            <h2><a href="https://github.com/browser-use/browser-use" target="_blank">Browser Use</a></h2>
+            <div class="example-grid">
+                <div class="example-card" data-path="browser_use/conversation_add_todo.html">
+                    <h3>智能待办事项添加</h3>
+                    <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
+                </div>
             </div>
-            <div class="example-card" data-path="midscene/conversation_plan_by_vision.html">
-                <h3>智能任务规划</h3>
-                <p>基于界面元素视觉定位的智能任务分析与执行规划</p>
-            </div>
-            <div class="example-card" data-path="midscene/conversation_inspect_by_domtree.html">
-                <h3>DOM智能识别</h3>
-                <p>根据截图和页面 Dom 树，精确识别页面元素的 ID</p>
-            </div>
-            <div class="example-card" data-path="midscene/conversation_inspect_by_vision.html">
-                <h3>视觉智能定位</h3>
-                <p>基于界面元素视觉定位，返回元素的坐标（需使用支持视觉定位的大模型）</p>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="agent-section">
-        <h2><a href="https://github.com/wandb/openui" target="_blank">openui</a></h2>
-        <div class="example-grid">
-            <div class="example-card" data-path="openui/conversation_create_homepage.html">
-                <h3>创建一个个人主页示例</h3>
-                <p>展示AI代理如何创建个人主页的网站页面</p>
+        <section class="agent-section">
+            <h2><a href="https://github.com/mannaandpoem/OpenManus" target="_blank">OpenManus</a></h2>
+            <div class="example-grid">
+                <div class="example-card" data-path="OpenManus/conversation_add_todo.html">
+                    <h3>智能待办事项添加</h3>
+                    <p>展示AI代理如何自动完成待办事项的添加，体验智能化的任务处理流程。</p>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+
+        <section class="agent-section">
+            <h2><a href="https://github.com/wandb/openui" target="_blank">openui</a></h2>
+            <div class="example-grid">
+                <div class="example-card" data-path="openui/conversation_create_homepage.html">
+                    <h3>创建一个个人主页示例</h3>
+                    <p>展示AI代理如何创建个人主页的网站页面</p>
+                </div>
+            </div>
+        </section>
+    </div>
 </main>
 
 <script>
