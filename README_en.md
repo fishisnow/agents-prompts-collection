@@ -4,7 +4,7 @@ English | [中文](README.md)
 
 This is a repository for collecting the interaction processes between open-source AI Agents and users, focusing on documenting and showcasing various examples of agent and AI interactions to help developers learn and understand the working principles of AI Agents.
 
-🌐 [View all conversation examples online](https://fishisnow.github.io/agents-chat-collection/)
+🌐 [View all conversation examples online](https://fishisnow.github.io/agents-prompts-collection/)
 
 ## Project Introduction
 
