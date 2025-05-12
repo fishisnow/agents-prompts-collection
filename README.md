@@ -4,7 +4,7 @@
 
 这是一个用于收集开源 AI Agent 与用户交互对话过程的仓库，专注于记录和展示各种agent与AI交互的实例，帮助开发者学习和了解 AI Agent的工作原理。
 
-🌐 [在线浏览所有对话示例](https://fishisnow.github.io/agents-chat-collection/)
+🌐 [在线浏览所有对话示例](https://fishisnow.github.io/agents-prompts-collection/)
 
 ## 项目介绍
 
